@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <strong>The Academic Curator</strong>
+        </div>
+        <div class="nav-center">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/bookstore">Bookstore</a>
+          <a href="/forum">Forum</a>
+        </div>
+        <div class="navlinks">
+          <div id="notification-container" style="position: relative;">
+            <div class="nav-icon" id="notification-btn" style="cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="badge">2</span>
+            </div>
+            <div class="dropdown-menu" id="notification-dropdown" style="width: 320px; right: -10px; padding: 0;">
+              <div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 16px;">
+                <div class="name" style="font-size: 14px;">Notifications</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">New Course Available</div>
+                <div class="muted" style="line-height: 1.4;">Advanced Machine Learning is now open for enrollment.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">2 hours ago</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">Forum Reply</div>
+                <div class="muted" style="line-height: 1.4;">Dr. Turing replied to your topic in Philosophy.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">5 hours ago</div>
+              </div>
+              <a href="#" class="dropdown-item" style="justify-content: center; color: var(--accent); font-weight: 600; border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 12px;">
+                View All
+              </a>
+            </div>
+          </div>
+          <a href="/cart" class="nav-icon" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          </a>
+          
+          <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
+            <div class="avatar" id="user-avatar-btn">
+              <img src="https://ui-avatars.com/api/?name=User&background=002B5B&color=fff" alt="User avatar" id="user-avatar-img" />
+            </div>
+            <div class="dropdown-menu" id="user-dropdown-menu">
+              <div class="dropdown-header">
+                <div class="name" id="dropdown-user-name">User Name</div>
+                <div class="email" id="dropdown-user-email">user@example.com</div>
+              </div>
+              <a href="/portal" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                My Dashboard
+              </a>
+              <a href="/my-ebooks" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                My Ebooks
+              </a>
+              <a href="/admin" class="dropdown-item" data-auth="admin-only" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                Admin Panel
+              </a>
+              <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+              <button class="dropdown-item danger logout-btn" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+          
+          <a href="/login" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Login</a>
+          <a href="/register" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Register</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border);">
+        <a href="/bookstore" style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Continue Shopping
+        </a>
+        <h1 style="margin: 0 0 16px; font-size: 48px; color: var(--accent); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;">Your Cart</h1>
+      </div>
+
+      <div class="two-col" style="grid-template-columns: 1fr 360px; gap: 40px; align-items: start;">
+        <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+          <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Cart Items</h2>
+          <div id="cart-status" class="muted">Loading…</div>
+          <div id="items" class="list" style="margin-top:0; gap: 16px;"></div>
+        </div>
+
+        <aside class="sidebar" style="position: sticky; top: 100px;">
+          <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+            <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Order Summary</h2>
+            <div class="muted" style="line-height: 1.6; font-size: 14px; margin-bottom: 24px;">
+              This is a simulated checkout. Once you purchase, your ebook becomes available for protected PDF download.
+            </div>
+
+            <div style="padding-top: 24px; border-top: 1px solid var(--border); margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-weight: 600; color: var(--muted);">Subtotal</span>
+                <span id="subtotal-val" style="font-weight: 600; color: var(--text);">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <span style="font-weight: 600; color: var(--muted);">Tax</span>
+                <span style="font-weight: 600; color: var(--text);">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border);">
+                <span style="font-weight: 800; color: var(--accent); font-size: 18px;">Total</span>
+                <span id="total-box" style="font-weight: 800; color: var(--accent); font-size: 24px;">$0.00</span>
+              </div>
+            </div>
+
+            <button class="btn" type="button" id="checkout-btn" style="width: 100%; padding: 16px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              Secure Checkout
+            </button>
+            <div id="checkout-error" class="status bad" style="display:none; margin-top:16px;"></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
+        <div>
+          <strong style="font-size: 20px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em;">The Academic Curator</strong>
+          <p class="muted" style="margin-top: 16px; line-height: 1.6; font-size: 14px; max-width: 320px;">
+            Elevating the undergraduate experience through curated resources, advanced texts, and rigorous discourse.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Platform</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
+            <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
+            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Student</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/portal" style="color: var(--muted); font-size: 14px; text-decoration: none;">Dashboard</a>
+            <a href="/my-ebooks" style="color: var(--muted); font-size: 14px; text-decoration: none;">My Ebooks</a>
+            <a href="/cart" style="color: var(--muted); font-size: 14px; text-decoration: none;">Cart</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Legal</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Privacy Policy</a>
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1200px; margin: 80px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px;">
+        <span>&copy; 2026 The Academic Curator. All rights reserved.</span>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+      const statusEl = document.getElementById("cart-status");
+      const itemsEl = document.getElementById("items");
+      const totalBox = document.getElementById("total-box");
+      const checkoutBtn = document.getElementById("checkout-btn");
+      const checkoutError = document.getElementById("checkout-error");
+
+      function money(x) {
+        const n = Number(x || 0);
+        return `$${n.toFixed(2)}`;
+      }
+
+      async function loadCart() {
+        itemsEl.innerHTML = "";
+        statusEl.textContent = "Loading…";
+        checkoutError.style.display = "none";
+        try {
+          const payload = await apiGet("/api/cart");
+          const cart = payload.data;
+          const items = cart.items || [];
+          const total = cart.total || 0;
+          document.getElementById("subtotal-val").textContent = money(total);
+          totalBox.textContent = money(total);
+
+          if (!items.length) {
+            statusEl.textContent = "Your cart is empty.";
+            checkoutBtn.disabled = true;
+            return;
+          }
+          statusEl.textContent = "";
+          checkoutBtn.disabled = false;
+
+          items.forEach((it) => {
+            const line = document.createElement("div");
+            line.className = "line";
+            line.style.background = "var(--bg0)";
+            line.style.border = "none";
+            line.style.padding = "24px";
+            line.style.borderRadius = "16px";
+            line.style.display = "flex";
+            line.style.alignItems = "center";
+            line.style.justifyContent = "space-between";
+            line.style.gap = "24px";
+
+            line.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
+                <div style="width: 80px; height: 100px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: var(--muted);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 800; font-size: 18px; color: var(--accent); margin-bottom: 8px;">${it.title}</div>
+                  <div class="muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 16px;">${it.category || "Textbook"} • ${money(it.price)} each</div>
+                  <div style="display: flex; gap: 12px; align-items: center;">
+                    <div style="display: flex; align-items: center; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 4px;">
+                      <input type="number" min="1" max="99" value="${it.quantity}" data-qty="${it.id}" style="width: 60px; border: none; background: transparent; padding: 4px 8px; text-align: center; font-weight: 600;" />
+                    </div>
+                    <button class="btn outline" type="button" data-update="${it.id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px;">Update</button>
+                    <button class="btn-link" type="button" data-delete="${it.id}" style="color: var(--bad); font-size: 12px; display: flex; align-items: center; gap: 4px; padding: 8px;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div style="font-weight: 800; font-size: 24px; color: var(--accent);">
+                ${money(it.line_total)}
+              </div>
+            `;
+            itemsEl.appendChild(line);
+          });
+
+          itemsEl.querySelectorAll("[data-update]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const itemId = Number(btn.getAttribute("data-update"));
+              const input = itemsEl.querySelector(`[data-qty='${itemId}']`);
+              const qty = Number(input.value);
+              await apiPatch(`/api/cart/items/${itemId}`, { quantity: qty });
+              await loadCart();
+            });
+          });
+
+          itemsEl.querySelectorAll("[data-delete]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const itemId = Number(btn.getAttribute("data-delete"));
+              await apiDelete(`/api/cart/items/${itemId}`);
+              await loadCart();
+            });
+          });
+        } catch (e) {
+          statusEl.textContent = e.message || "Failed to load cart.";
+          checkoutBtn.disabled = true;
+        }
+      }
+
+      checkoutBtn.addEventListener("click", async () => {
+        checkoutError.style.display = "none";
+        try {
+          const payload = await apiPost("/api/checkout", {}, { auth: true });
+          location.href = "/my-ebooks";
+        } catch (e) {
+          checkoutError.style.display = "block";
+          checkoutError.textContent = e.message || "Checkout failed";
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadCart();
+      });
+    </script>
+  </body>
+</html>
+

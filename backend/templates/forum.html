@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forum</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <strong>The Academic Curator</strong>
+        </div>
+        <div class="nav-center">
+          <a href="/" aria-label="Home">Home</a>
+          <a href="/courses" aria-label="Courses">Courses</a>
+          <a href="/bookstore" aria-label="Bookstore">Bookstore</a>
+          <a href="/forum" class="active" aria-label="Discussion forum">Forum</a>
+        </div>
+        <div class="navlinks">
+          <div id="notification-container" style="position: relative;">
+            <div class="nav-icon" id="notification-btn" style="cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="badge">2</span>
+            </div>
+            <div class="dropdown-menu" id="notification-dropdown" style="width: 320px; right: -10px; padding: 0;">
+              <div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 16px;">
+                <div class="name" style="font-size: 14px;">Notifications</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">New Course Available</div>
+                <div class="muted" style="line-height: 1.4;">Advanced Machine Learning is now open for enrollment.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">2 hours ago</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">Forum Reply</div>
+                <div class="muted" style="line-height: 1.4;">Dr. Turing replied to your topic in Philosophy.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">5 hours ago</div>
+              </div>
+              <a href="#" class="dropdown-item" style="justify-content: center; color: var(--accent); font-weight: 600; border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 12px;">
+                View All
+              </a>
+            </div>
+          </div>
+          <a href="/cart" class="nav-icon" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          </a>
+          
+          <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
+            <div class="avatar" id="user-avatar-btn">
+              <img src="https://ui-avatars.com/api/?name=User&background=002B5B&color=fff" alt="User avatar" id="user-avatar-img" />
+            </div>
+            <div class="dropdown-menu" id="user-dropdown-menu">
+              <div class="dropdown-header">
+                <div class="name" id="dropdown-user-name">User Name</div>
+                <div class="email" id="dropdown-user-email">user@example.com</div>
+              </div>
+              <a href="/portal" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                My Dashboard
+              </a>
+              <a href="/my-ebooks" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                My Ebooks
+              </a>
+              <a href="/admin" class="dropdown-item" data-auth="admin-only" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                Admin Panel
+              </a>
+              <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+              <button class="dropdown-item danger logout-btn" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+          
+          <a href="/login" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Login</a>
+          <a href="/register" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Register</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="two-col" style="grid-template-columns: 320px 1fr; gap: 40px; align-items: stretch; height: calc(100vh - 160px);">
+        
+        <!-- Left Sidebar: Discourse List -->
+        <aside class="sidebar" style="display: flex; flex-direction: column; height: 100%;">
+          <h4 style="font-size: 12px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px;">Discourse</h4>
+          
+          <div class="card" style="padding: 20px; display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+            <div class="search-bar" style="background: white; border: 1px solid var(--border); padding: 12px 16px; width: 100%; margin-bottom: 16px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input id="topic-search" type="text" placeholder="Search discussions..." style="width: 100%; border: none; background: transparent;" />
+            </div>
+            
+            <button class="btn outline" style="width: 100%; margin-bottom: 24px; border-radius: 12px; font-weight: 600; color: var(--accent); border-color: var(--border);" id="new-discussion-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              New Discussion
+            </button>
+
+            <div id="topics-status" class="muted" style="margin-bottom: 10px; font-size: 14px;">Loading…</div>
+            <div class="list" id="topics" style="flex: 1; overflow-y: auto; margin-top: 0; padding-right: 8px; display: flex; flex-direction: column; gap: 8px;"></div>
+          </div>
+        </aside>
+
+        <!-- Main Content: Active Thread -->
+        <div class="content" style="display: flex; flex-direction: column; height: 100%;">
+          
+          <!-- Thread Header -->
+          <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border);">
+            <div style="margin-bottom: 16px;">
+              <span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;" id="selected-category">PHILOSOPHY</span>
+            </div>
+            <h1 style="margin: 0 0 16px; font-size: 36px; color: var(--accent); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;" id="selected-title">Select a topic</h1>
+            
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="avatar" style="width: 40px; height: 40px;">
+                <img src="https://ui-avatars.com/api/?name=Author&background=002B5B&color=fff" alt="Author" id="selected-author-img" />
+              </div>
+              <div>
+                <div style="font-weight: 700; color: var(--accent); font-size: 16px;" id="selected-author">Unknown Scholar</div>
+                <div class="muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;" id="selected-meta">STARTED 2H AGO</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thread Messages -->
+          <div id="posts-status" class="muted" style="margin-bottom: 10px; text-align: center;">Select a topic from the sidebar to view the discussion.</div>
+          <div id="posts" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; background: var(--bg0); border-radius: 16px; margin-bottom: 24px;"></div>
+
+          <!-- Reply Input -->
+          <div style="position: relative; margin-top: auto;">
+            <textarea id="post-content" placeholder="Contribute to the discourse..." style="width: 100%; border: 1px solid var(--border); border-radius: 16px; padding: 20px 76px 20px 20px; min-height: 80px; resize: none; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); font-size: 16px;"></textarea>
+            <button class="btn" type="button" id="reply-btn" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 12px; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--accent);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg); position: relative; left: -2px; top: 2px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+            <div id="reply-error" class="status bad" style="display:none; margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Create Topic Modal/Section -->
+      <div id="create-topic-section" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 500px; background: white; padding: 32px; border-radius: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3 style="margin: 0; font-size: 24px; color: var(--accent);">Create a topic</h3>
+            <button id="close-modal-btn" style="background: none; border: none; cursor: pointer; color: var(--muted);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+          <label for="topic-title">Title</label>
+          <input id="topic-title" placeholder="e.g., The post-digital era implications on ethics" style="margin-bottom: 24px; font-size: 16px; padding: 16px;" />
+          <button class="btn" type="button" id="create-topic-btn" style="width: 100%; padding: 16px; font-size: 16px;">Post topic</button>
+          <div id="topic-create-error" class="status bad" style="display:none; margin-top:12px;"></div>
+        </div>
+      </div>
+
+      <section style="margin-top: 60px; border-top: 1px solid var(--border); padding-top: 40px;">
+        <div class="card" style="background: white;">
+          <h2 style="margin-top:0; color: var(--accent);">Moderation panel</h2>
+          <div class="muted" style="line-height:1.6; margin-bottom:24px;">
+            Only accessible to moderators/admins. Allows hide/delete/lock topics based on user reports.
+          </div>
+          <div id="reports-status" class="muted">Loading moderation reports…</div>
+          <div id="reports" class="list" style="margin-top:14px;"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
+        <div>
+          <strong style="font-size: 20px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em;">The Academic Curator</strong>
+          <p class="muted" style="margin-top: 16px; line-height: 1.6; font-size: 14px; max-width: 320px;">
+            Elevating the undergraduate experience through curated resources, advanced texts, and rigorous discourse.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Platform</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
+            <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
+            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Student</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/portal" style="color: var(--muted); font-size: 14px; text-decoration: none;">Dashboard</a>
+            <a href="/my-ebooks" style="color: var(--muted); font-size: 14px; text-decoration: none;">My Ebooks</a>
+            <a href="/cart" style="color: var(--muted); font-size: 14px; text-decoration: none;">Cart</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Legal</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Privacy Policy</a>
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1200px; margin: 80px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px;">
+        <span>&copy; 2026 The Academic Curator. All rights reserved.</span>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+      const topicsEl = document.getElementById("topics");
+      const topicsStatusEl = document.getElementById("topics-status");
+      const searchBtn = document.getElementById("topic-search");
+      const topicSearchInput = document.getElementById("topic-search");
+      const newDiscussionBtn = document.getElementById("new-discussion-btn");
+      const createTopicModal = document.getElementById("create-topic-section");
+      const closeModalBtn = document.getElementById("close-modal-btn");
+
+      let selectedTopicId = null;
+
+      // Modal logic
+      newDiscussionBtn.addEventListener("click", () => {
+        createTopicModal.style.display = "flex";
+      });
+      closeModalBtn.addEventListener("click", () => {
+        createTopicModal.style.display = "none";
+      });
+      createTopicModal.addEventListener("click", (e) => {
+        if (e.target === createTopicModal) createTopicModal.style.display = "none";
+      });
+
+      function moneyEscape(s) { return String(s || ""); }
+
+      async function loadTopics(search = "") {
+        topicsEl.innerHTML = "";
+        topicsStatusEl.textContent = "Loading…";
+        try {
+          const qs = new URLSearchParams();
+          if (search) qs.set("search", search);
+          const payload = await apiGet(`/api/forum/topics${qs.toString() ? "?" + qs.toString() : ""}`, { auth: false });
+          const topics = payload.data || [];
+
+          topicsStatusEl.textContent = topics.length ? "" : "No topics yet.";
+
+          topics.forEach((t) => {
+            const line = document.createElement("div");
+            line.className = "line";
+            line.style.cursor = "pointer";
+            line.style.border = "none";
+            line.style.background = "transparent";
+            line.style.padding = "16px";
+            line.style.borderRadius = "12px";
+            line.style.transition = "background 0.2s";
+            line.style.display = "block";
+            
+            line.onmouseover = () => line.style.background = "var(--bg0)";
+            line.onmouseout = () => line.style.background = "transparent";
+
+            line.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 10px; font-weight: 800; color: #D4A017; text-transform: uppercase; letter-spacing: 0.1em;">PHILOSOPHY</span>
+                <span class="muted" style="font-size: 12px;">${new Date(t.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
+              <div style="font-weight: 800; font-size: 16px; color: var(--accent); line-height: 1.4; margin-bottom: 12px;">${t.title}</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="avatar" style="width: 24px; height: 24px;">
+                  <img src="https://ui-avatars.com/api/?name=User&background=002B5B&color=fff" alt="User" />
+                </div>
+                <span class="muted" style="font-size: 14px;">Scholar</span>
+              </div>
+            `;
+            line.addEventListener("click", () => {
+              // Reset all active states
+              document.querySelectorAll('#topics .line').forEach(el => {
+                el.style.background = "transparent";
+                el.onmouseout = () => el.style.background = "transparent";
+              });
+              // Set active state
+              line.style.background = "var(--bg0)";
+              line.onmouseout = null; // keep background when mouse leaves
+              
+              selectedTopicId = t.id;
+              loadTopic(t.id);
+            });
+            topicsEl.appendChild(line);
+          });
+        } catch (e) {
+          topicsStatusEl.textContent = e.message || "Failed to load topics";
+        }
+      }
+
+      async function loadTopic(topicId) {
+        selectedTopicId = topicId;
+        document.getElementById("reply-error").style.display = "none";
+
+        document.getElementById("posts").innerHTML = "";
+        document.getElementById("posts-status").textContent = "Loading…";
+        try {
+          const payload = await apiGet(`/api/forum/topics/${topicId}`, { auth: false });
+          const topic = payload.data.topic;
+          const posts = payload.data.posts || [];
+
+          document.getElementById("selected-title").textContent = topic.title;
+          document.getElementById("selected-meta").textContent = `STARTED ${new Date(topic.created_at).toLocaleDateString()}`;
+
+          const postsEl = document.getElementById("posts");
+          postsEl.innerHTML = "";
+          if (!posts.length) {
+            document.getElementById("posts-status").textContent = "No replies yet. Be the first to contribute.";
+            return;
+          }
+          document.getElementById("posts-status").textContent = "";
+
+          posts.forEach((p) => {
+            const line = document.createElement("div");
+            line.style.display = "flex";
+            line.style.gap = "16px";
+            line.style.background = "white";
+            line.style.padding = "24px";
+            line.style.borderRadius = "16px";
+            line.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02)";
+            
+            line.innerHTML = `
+              <div class="avatar" style="width: 40px; height: 40px; flex-shrink: 0;">
+                <img src="https://ui-avatars.com/api/?name=User&background=002B5B&color=fff" alt="User" />
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                  <div style="font-weight: 700; color: var(--accent); font-size: 16px;">User ${p.user_id}</div>
+                  <div class="muted" style="font-size: 12px;">${new Date(p.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+                <div style="font-size: 16px; line-height: 1.6; color: var(--text); white-space: pre-wrap; margin-bottom: 16px;">${p.content}</div>
+                <div style="display: flex; justify-content: flex-end;">
+                  <button class="btn-link" style="font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; background: none; border: none; cursor: pointer;" type="button" data-report="${p.id}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                    Report
+                  </button>
+                </div>
+              </div>
+            `;
+            line.querySelector("[data-report]").addEventListener("click", async () => {
+              const reason = prompt("Reason for reporting (brief):");
+              if (!reason || !reason.trim()) return;
+              try {
+                await apiPost(`/api/forum/posts/${p.id}/report`, { reason: reason.trim() }, { auth: true });
+                alert("Report submitted. Thanks!");
+              } catch (err) {
+                alert(err.message || "Failed to report");
+              }
+            });
+            postsEl.appendChild(line);
+          });
+          
+          // Scroll to bottom of posts
+          postsEl.scrollTop = postsEl.scrollHeight;
+        } catch (e) {
+          document.getElementById("posts-status").textContent = e.message || "Failed to load topic";
+        }
+      }
+
+      // Search on typing with debounce
+      let searchTimeout;
+      topicSearchInput.addEventListener("input", () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          loadTopics(topicSearchInput.value.trim());
+        }, 300);
+      });
+
+      document.getElementById("create-topic-btn").addEventListener("click", async () => {
+        const title = document.getElementById("topic-title").value.trim();
+        const errEl = document.getElementById("topic-create-error");
+        errEl.style.display = "none";
+        try {
+          await apiPost("/api/forum/topics", { title }, { auth: true });
+          document.getElementById("topic-title").value = "";
+          createTopicModal.style.display = "none";
+          loadTopics(topicSearchInput.value.trim());
+        } catch (e) {
+          errEl.style.display = "block";
+          errEl.textContent = e.message || "Failed to create topic";
+        }
+      });
+
+      document.getElementById("reply-btn").addEventListener("click", async () => {
+        const content = document.getElementById("post-content").value.trim();
+        const errEl = document.getElementById("reply-error");
+        errEl.style.display = "none";
+        if (!selectedTopicId) {
+          errEl.style.display = "block";
+          errEl.textContent = "Select a topic first.";
+          return;
+        }
+        try {
+          await apiPost(`/api/forum/topics/${selectedTopicId}/posts`, { content }, { auth: true });
+          document.getElementById("post-content").value = "";
+          loadTopic(selectedTopicId);
+        } catch (e) {
+          errEl.style.display = "block";
+          errEl.textContent = e.message || "Failed to submit reply";
+        }
+      });
+
+      async function loadReports() {
+        const reportsEl = document.getElementById("reports");
+        const reportsStatusEl = document.getElementById("reports-status");
+        reportsEl.innerHTML = "";
+        reportsStatusEl.textContent = "Loading moderation reports…";
+        try {
+          const payload = await apiGet("/api/mod/reports", { auth: true });
+          const reports = payload.data || [];
+          reportsStatusEl.textContent = reports.length ? "" : "No open reports.";
+
+          reports.forEach((r) => {
+            const line = document.createElement("div");
+            line.className = "line";
+            line.innerHTML = `
+              <div style="max-width:70ch;">
+                <div style="font-weight:900;">Report #${r.id}</div>
+                <div class="muted" style="margin-top:6px;">Post: ${r.post_id} • Reporter: ${r.reporter_id}</div>
+                <div style="margin-top:10px; white-space:pre-wrap;">Reason: ${r.reason}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <button class="btn secondary" type="button" data-action="${r.id}:approve">Approve</button>
+                <button class="btn" type="button" data-action="${r.id}:hide">Hide post</button>
+                <button class="btn danger" type="button" data-action="${r.id}:delete">Delete post</button>
+                <button class="btn secondary" type="button" data-action="${r.id}:lock_topic">Lock topic</button>
+              </div>
+            `;
+            line.querySelectorAll("[data-action]").forEach((btn) => {
+              btn.addEventListener("click", async () => {
+                const [rid, act] = btn.getAttribute("data-action").split(":");
+                try {
+                  await apiPost(`/api/mod/reports/${rid}/action`, { action: act }, { auth: true });
+                  await loadReports();
+                  await loadTopics(topicSearchInput.value.trim());
+                  if (selectedTopicId) await loadTopic(selectedTopicId);
+                } catch (e) {
+                  alert(e.message || "Action failed");
+                }
+              });
+            });
+            reportsEl.appendChild(line);
+          });
+        } catch (e) {
+          // If user isn't a moderator/admin, hide the panel.
+          reportsStatusEl.textContent = "Moderation panel requires moderator/admin.";
+        }
+      }
+
+      (async () => {
+        await loadTopics("");
+        await loadReports();
+      })();
+    </script>
+  </body>
+</html>
+

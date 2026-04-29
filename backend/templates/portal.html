@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Portal</title>
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <strong>The Academic Curator</strong>
+        </div>
+        <div class="nav-center">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/bookstore">Bookstore</a>
+          <a href="/forum">Forum</a>
+        </div>
+        <div class="navlinks">
+          <div id="notification-container" style="position: relative;">
+            <div class="nav-icon" id="notification-btn" style="cursor: pointer;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="badge">2</span>
+            </div>
+            <div class="dropdown-menu" id="notification-dropdown" style="width: 320px; right: -10px; padding: 0;">
+              <div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 16px;">
+                <div class="name" style="font-size: 14px;">Notifications</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text); border-bottom: 1px solid var(--border);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">New Course Available</div>
+                <div class="muted" style="line-height: 1.4;">Advanced Machine Learning is now open for enrollment.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">2 hours ago</div>
+              </div>
+              <div style="padding: 16px; font-size: 14px; color: var(--text);">
+                <div style="font-weight: 600; margin-bottom: 4px; color: var(--accent);">Forum Reply</div>
+                <div class="muted" style="line-height: 1.4;">Dr. Turing replied to your topic in Philosophy.</div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">5 hours ago</div>
+              </div>
+              <a href="#" class="dropdown-item" style="justify-content: center; color: var(--accent); font-weight: 600; border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 12px;">
+                View All
+              </a>
+            </div>
+          </div>
+          <a href="/cart" class="nav-icon" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+          </a>
+          
+          <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
+            <div class="avatar" id="user-avatar-btn">
+              <img src="https://ui-avatars.com/api/?name=User&background=002B5B&color=fff" alt="User avatar" id="user-avatar-img" />
+            </div>
+            <div class="dropdown-menu" id="user-dropdown-menu">
+              <div class="dropdown-header">
+                <div class="name" id="dropdown-user-name">User Name</div>
+                <div class="email" id="dropdown-user-email">user@example.com</div>
+              </div>
+              <a href="/portal" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                My Dashboard
+              </a>
+              <a href="/my-ebooks" class="dropdown-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                My Ebooks
+              </a>
+              <a href="/admin" class="dropdown-item" data-auth="admin-only" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                Admin Panel
+              </a>
+              <div style="border-top: 1px solid var(--border); margin: 4px 0;"></div>
+              <button class="dropdown-item danger logout-btn" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+          
+          <a href="/login" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Login</a>
+          <a href="/register" data-auth="logged-out" style="display:inline-flex;" class="btn-link">Register</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border);">
+        <h1 style="margin: 0 0 16px; font-size: 48px; color: var(--accent); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;">Student Dashboard</h1>
+        <p class="muted" style="margin: 0; font-size: 18px; max-width: 720px; line-height: 1.6;">
+          Track your academic progress and access your saved resources.
+        </p>
+      </div>
+
+      <div class="two-col" style="grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+        <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+            <div style="width: 48px; height: 48px; border-radius: 16px; background: #EFF6FF; color: #1D4ED8; display: flex; align-items: center; justify-content: center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h2 style="margin: 0; font-size: 24px; color: var(--accent); font-weight: 800;">Academic Progress</h2>
+          </div>
+          
+          <div id="progress-box" style="margin-top:14px; text-align: center; padding: 40px 0;">
+            Loading…
+          </div>
+        </div>
+
+        <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+            <div style="width: 48px; height: 48px; border-radius: 16px; background: #FFFBEB; color: #B45309; display: flex; align-items: center; justify-content: center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <h2 style="margin: 0; font-size: 24px; color: var(--accent); font-weight: 800;">Saved Resources</h2>
+          </div>
+          
+          <div id="saved-status" class="muted" style="margin-top:10px; text-align: center; padding: 20px 0;">Loading…</div>
+          <div id="saved-list" class="list" style="margin-top:0; gap: 16px;"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
+        <div>
+          <strong style="font-size: 20px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em;">The Academic Curator</strong>
+          <p class="muted" style="margin-top: 16px; line-height: 1.6; font-size: 14px; max-width: 320px;">
+            Elevating the undergraduate experience through curated resources, advanced texts, and rigorous discourse.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Platform</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
+            <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
+            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Student</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/portal" style="color: var(--muted); font-size: 14px; text-decoration: none;">Dashboard</a>
+            <a href="/my-ebooks" style="color: var(--muted); font-size: 14px; text-decoration: none;">My Ebooks</a>
+            <a href="/cart" style="color: var(--muted); font-size: 14px; text-decoration: none;">Cart</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Legal</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Privacy Policy</a>
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1200px; margin: 80px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px;">
+        <span>&copy; 2026 The Academic Curator. All rights reserved.</span>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script>
+      const progressBox = document.getElementById("progress-box");
+      const savedStatus = document.getElementById("saved-status");
+      const savedList = document.getElementById("saved-list");
+
+      async function loadPortal() {
+        progressBox.textContent = "Loading…";
+        savedList.innerHTML = "";
+        savedStatus.textContent = "Loading…";
+
+        try {
+          const [progressPayload, savedPayload] = await Promise.all([
+            apiGet("/api/progress", { auth: true }),
+            apiGet("/api/saved", { auth: true }),
+          ]);
+
+          const p = progressPayload.data || {};
+          const percent = p.progress_percent ?? 0;
+          
+          progressBox.innerHTML = `
+            <div style="position: relative; width: 160px; height: 160px; margin: 0 auto 24px;">
+              <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--bg0)" stroke-width="3" />
+                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="${percent}, 100" />
+              </svg>
+              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                <span style="font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1;">${percent}%</span>
+              </div>
+            </div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px;">Course Completion</div>
+            <div class="muted" style="font-size: 14px;">${p.completed_count ?? 0} completed of ${p.total_resources ?? 0} resources</div>
+          `;
+
+          const resources = savedPayload.data?.resources || [];
+          if (!resources.length) {
+            savedStatus.textContent = "No saved resources yet.";
+            return;
+          }
+          savedStatus.textContent = "";
+          resources.forEach((r) => {
+            const line = document.createElement("div");
+            line.className = "line";
+            line.style.background = "var(--bg0)";
+            line.style.border = "none";
+            line.style.padding = "20px";
+            line.style.borderRadius = "16px";
+            line.style.display = "flex";
+            line.style.alignItems = "center";
+            line.style.justifyContent = "space-between";
+            
+            const iconType = r.resource_type === "video" 
+              ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`
+              : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+
+            line.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                  ${iconType}
+                </div>
+                <div>
+                  <div style="font-weight: 800; font-size: 16px; color: var(--accent); margin-bottom: 4px;">${r.title}</div>
+                  <div class="muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Saved ${new Date(r.saved_at).toLocaleDateString()}</div>
+                </div>
+              </div>
+              <a class="btn outline" href="/course/${r.course_id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px;">Open</a>
+            `;
+            savedList.appendChild(line);
+          });
+        } catch (e) {
+          progressBox.textContent = "You need to login to view the portal.";
+          savedStatus.textContent = "Login required.";
+          if (e?.message?.includes("401")) {
+            // leave it up to user
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadPortal);
+    </script>
+  </body>
+</html>
+

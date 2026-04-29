@@ -1,0 +1,20 @@
+__pycache__/
+.pytest_cache/
+.vscode/
+.idea/
+.env
+
+# Local Flask/SQLite data (do not commit)
+instance/
+backend/instance/
+*.db
+
+# Flask uploads (user content)
+uploads/
+backend/uploads/
+
+# Python build
+*.pyc
+
+
+venv/
