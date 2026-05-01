@@ -221,7 +221,7 @@
           const [savedPayload, completionPayload, progPayload] = await Promise.all([
             apiGet("/api/saved"),
             apiGet("/api/completions"),
-            apiGet("/api/progress"),
+            apiGet(`/api/progress?course_id=${courseId}`),
           ]);
           savedIds = new Set((savedPayload.data?.resources || []).map((r) => r.id));
           completedIds = new Set(completionPayload.data?.resource_ids || []);
@@ -347,23 +347,44 @@
             });
 
             const saveBtn = document.createElement("button");
-            saveBtn.className = saved ? "btn outline" : "btn secondary";
+            saveBtn.className = saved ? "btn outline" : "btn";
             saveBtn.style.display = "flex";
             saveBtn.style.alignItems = "center";
             saveBtn.style.gap = "8px";
             saveBtn.type = "button";
-            
-            if (saved) {
-              saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Saved`;
-            } else {
-              saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save`;
-            }
-            
-            saveBtn.disabled = saved;
+
+            const renderSaveButton = (isSaved) => {
+              saveBtn.className = isSaved ? "btn outline" : "btn";
+              if (isSaved) {
+                saveBtn.style.background = "white";
+                saveBtn.style.color = "var(--accent)";
+                saveBtn.style.borderColor = "var(--border)";
+                saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Saved`;
+              } else {
+                // Strong contrast for unsaved state: dark button + light text.
+                saveBtn.style.background = "var(--accent)";
+                saveBtn.style.color = "white";
+                saveBtn.style.borderColor = "var(--accent)";
+                saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save`;
+              }
+            };
+
+            renderSaveButton(saved);
             saveBtn.addEventListener("click", async () => {
-              await apiPost(`/api/resources/${r.id}/save`, {}, { auth: true });
-              savedIds.add(r.id);
-              location.reload();
+              const isSaved = savedIds.has(r.id);
+              saveBtn.disabled = true;
+              try {
+                if (isSaved) {
+                  await apiDelete(`/api/resources/${r.id}/save`, { auth: true });
+                  savedIds.delete(r.id);
+                } else {
+                  await apiPost(`/api/resources/${r.id}/save`, {}, { auth: true });
+                  savedIds.add(r.id);
+                }
+                renderSaveButton(savedIds.has(r.id));
+              } finally {
+                saveBtn.disabled = false;
+              }
             });
 
             leftActions.appendChild(completeBtn);

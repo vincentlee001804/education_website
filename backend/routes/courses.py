@@ -151,11 +151,40 @@ def unsave_resource(resource_id: int):
 @jwt_required()
 def get_progress():
     user_id = int(get_jwt_identity())
+    course_id = request.args.get("course_id", type=int)
 
-    # Compute per-user progress across all resources (simple but effective).
-    total_resources = Resource.query.count()
-    completed_count = ResourceCompletion.query.filter_by(user_id=user_id).count()
-    saved_count = SavedResource.query.filter_by(user_id=user_id).count()
+    if course_id is not None:
+        course = Course.query.get(course_id)
+        if not course:
+            return _json_error("Course not found", code="not_found", status_code=404)
+
+        module_ids = [m.id for m in Module.query.filter_by(course_id=course_id).all()]
+        if not module_ids:
+            total_resources = 0
+            completed_count = 0
+            saved_count = 0
+        else:
+            resource_ids = [r.id for r in Resource.query.filter(Resource.module_id.in_(module_ids)).all()]
+            total_resources = len(resource_ids)
+            if not resource_ids:
+                completed_count = 0
+                saved_count = 0
+            else:
+                completed_count = (
+                    ResourceCompletion.query.filter_by(user_id=user_id)
+                    .filter(ResourceCompletion.resource_id.in_(resource_ids))
+                    .count()
+                )
+                saved_count = (
+                    SavedResource.query.filter_by(user_id=user_id)
+                    .filter(SavedResource.resource_id.in_(resource_ids))
+                    .count()
+                )
+    else:
+        # Compute per-user progress across all resources.
+        total_resources = Resource.query.count()
+        completed_count = ResourceCompletion.query.filter_by(user_id=user_id).count()
+        saved_count = SavedResource.query.filter_by(user_id=user_id).count()
 
     percent = 0 if total_resources == 0 else int((completed_count / total_resources) * 100)
     return jsonify(

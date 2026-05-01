@@ -498,6 +498,7 @@
           );
           const courseId = payload.data.course_id;
           $("course-result").textContent = `Created (course id: ${courseId}).`;
+          $("create-course-form").reset();
           await loadCourses();
         } catch (e) {
           $("course-result").textContent = e.message || "Failed to create course.";
@@ -582,6 +583,7 @@
           currentBookId = payload.data.book_id;
           $("current-book-id").textContent = String(currentBookId);
           $("book-result").textContent = `Created book id: ${currentBookId}. Now upload cover and PDF.`;
+          $("create-book-form").reset();
         } catch (err) {
           $("book-result").textContent = err.message || "Failed to create book.";
         }
@@ -599,6 +601,7 @@
           fd.append("file", file);
           await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, fd, { auth: true });
           $("upload-result").textContent = "Image uploaded successfully.";
+          $("book-image-file").value = "";
         } catch (e) {
           $("upload-result").textContent = e.message || "Image upload failed.";
         }
@@ -616,6 +619,7 @@
           fd.append("file", file);
           await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, fd, { auth: true });
           $("upload-result").textContent = "Ebook PDF uploaded successfully.";
+          $("ebook-pdf-file").value = "";
         } catch (e) {
           $("upload-result").textContent = e.message || "PDF upload failed.";
         }

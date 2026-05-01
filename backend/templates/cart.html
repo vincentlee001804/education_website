@@ -96,6 +96,12 @@
           <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Cart Items</h2>
           <div id="cart-status" class="muted">Loading…</div>
           <div id="items" class="list" style="margin-top:0; gap: 16px;"></div>
+          <div style="margin-top: 20px;">
+            <a href="/bookstore" class="btn outline" style="display: inline-flex; align-items: center; gap: 8px; background: white;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              More Items
+            </a>
+          </div>
         </div>
 
         <aside class="sidebar" style="position: sticky; top: 100px;">
@@ -206,6 +212,8 @@
           checkoutBtn.disabled = false;
 
           items.forEach((it) => {
+            const maxStock = Math.max(0, Number(it.stock_count || 0));
+            const clampedQty = Math.max(1, Math.min(Number(it.quantity || 1), Math.max(1, maxStock)));
             const line = document.createElement("div");
             line.className = "line";
             line.style.background = "var(--bg0)";
@@ -217,24 +225,29 @@
             line.style.justifyContent = "space-between";
             line.style.gap = "24px";
 
+            const coverHtml = it.image_url
+              ? `<img alt="${it.title} cover" loading="lazy" src="${it.image_url}" style="width: 80px; height: 100px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />`
+              : `<div style="width: 80px; height: 100px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: var(--muted);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>`;
+
             line.innerHTML = `
               <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
-                <div style="width: 80px; height: 100px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: var(--muted);">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                </div>
+                ${coverHtml}
                 <div style="flex: 1;">
                   <div style="font-weight: 800; font-size: 18px; color: var(--accent); margin-bottom: 8px;">${it.title}</div>
                   <div class="muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 16px;">${it.category || "Textbook"} • ${money(it.price)} each</div>
                   <div style="display: flex; gap: 12px; align-items: center;">
                     <div style="display: flex; align-items: center; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 4px;">
-                      <input type="number" min="1" max="99" value="${it.quantity}" data-qty="${it.id}" style="width: 60px; border: none; background: transparent; padding: 4px 8px; text-align: center; font-weight: 600;" />
+                      <input type="number" min="1" max="${Math.max(1, maxStock)}" value="${clampedQty}" data-qty="${it.id}" data-max-stock="${maxStock}" data-last-qty="${clampedQty}" style="width: 60px; border: none; background: transparent; padding: 4px 8px; text-align: center; font-weight: 600;" />
                     </div>
                     <button class="btn outline" type="button" data-update="${it.id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px;">Update</button>
-                    <button class="btn-link" type="button" data-delete="${it.id}" style="color: var(--bad); font-size: 12px; display: flex; align-items: center; gap: 4px; padding: 8px;">
+                    <button class="btn" type="button" data-delete="${it.id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px; display: flex; align-items: center; gap: 4px; color: white; border-color: var(--bad); background: var(--bad);">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                       Remove
                     </button>
                   </div>
+                  <div class="muted" data-stock-left="${it.id}" style="font-size: 12px; margin-top: 6px;">Stock: ${Math.max(0, maxStock - clampedQty)} left</div>
                 </div>
               </div>
               <div style="font-weight: 800; font-size: 24px; color: var(--accent);">
@@ -245,13 +258,58 @@
           });
 
           itemsEl.querySelectorAll("[data-update]").forEach((btn) => {
+            btn.addEventListener("mousedown", () => {
+              const itemId = Number(btn.getAttribute("data-update"));
+              const input = itemsEl.querySelector(`[data-qty='${itemId}']`);
+              if (input) input.setAttribute("data-skip-revert", "1");
+            });
             btn.addEventListener("click", async () => {
               const itemId = Number(btn.getAttribute("data-update"));
               const input = itemsEl.querySelector(`[data-qty='${itemId}']`);
-              const qty = Number(input.value);
+              const maxStock = Number(input.getAttribute("data-max-stock") || 0);
+              const maxAllowed = Math.max(1, maxStock);
+              const qty = Math.max(1, Math.min(Number(input.value || 1), maxAllowed));
+              input.value = String(qty);
+              input.setAttribute("data-last-qty", String(qty));
               await apiPatch(`/api/cart/items/${itemId}`, { quantity: qty });
               await loadCart();
             });
+          });
+
+          itemsEl.querySelectorAll("[data-qty]").forEach((input) => {
+            const itemId = Number(input.getAttribute("data-qty"));
+            const maxStock = Number(input.getAttribute("data-max-stock") || 0);
+            const maxAllowed = Math.max(1, maxStock);
+            const stockLeftEl = itemsEl.querySelector(`[data-stock-left='${itemId}']`);
+            const previewStock = () => {
+              let qty = Number(input.value || input.getAttribute("data-last-qty") || 1);
+              if (!Number.isFinite(qty)) qty = Number(input.getAttribute("data-last-qty") || 1);
+              qty = Math.max(1, Math.min(qty, maxAllowed));
+              if (stockLeftEl) stockLeftEl.textContent = `Stock: ${Math.max(0, maxStock - qty)} left`;
+            };
+            const commitOnEnter = (e) => {
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              let qty = Number(input.value || input.getAttribute("data-last-qty") || 1);
+              if (!Number.isFinite(qty)) qty = Number(input.getAttribute("data-last-qty") || 1);
+              qty = Math.max(1, Math.min(qty, maxAllowed));
+              input.value = String(qty);
+              input.setAttribute("data-last-qty", String(qty));
+              previewStock();
+              input.blur();
+            };
+            const revertOnBlur = () => {
+              if (input.getAttribute("data-skip-revert") === "1") {
+                input.removeAttribute("data-skip-revert");
+                return;
+              }
+              const lastQty = Number(input.getAttribute("data-last-qty") || 1);
+              input.value = String(lastQty);
+              if (stockLeftEl) stockLeftEl.textContent = `Stock: ${Math.max(0, maxStock - lastQty)} left`;
+            };
+            input.addEventListener("input", previewStock);
+            input.addEventListener("keydown", commitOnEnter);
+            input.addEventListener("blur", revertOnBlur);
           });
 
           itemsEl.querySelectorAll("[data-delete]").forEach((btn) => {

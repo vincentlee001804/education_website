@@ -164,11 +164,54 @@
       const statusEl = document.getElementById("status");
       const coursesEl = document.getElementById("courses");
 
+      async function loadCompletedResourceIds() {
+        try {
+          const payload = await apiGet("/api/completions");
+          return new Set(payload.data?.resource_ids || []);
+        } catch (_) {
+          // Not logged in or token invalid.
+          return null;
+        }
+      }
+
+      async function getCourseProgress(courseId, completedIds) {
+        const modulesPayload = await apiGet(`/api/courses/${courseId}/modules`, { auth: false });
+        const modules = modulesPayload.data || [];
+        if (!modules.length) return { completed: 0, total: 0, percent: 0 };
+
+        const resourcesByModule = await Promise.all(
+          modules.map((m) => apiGet(`/api/modules/${m.id}/resources`, { auth: false }))
+        );
+
+        let total = 0;
+        let completed = 0;
+        resourcesByModule.forEach((payload) => {
+          const resources = payload.data || [];
+          total += resources.length;
+          if (completedIds) {
+            resources.forEach((r) => {
+              if (completedIds.has(r.id)) completed += 1;
+            });
+          }
+        });
+
+        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+        return { completed, total, percent };
+      }
+
       (async () => {
         coursesEl.innerHTML = "";
         try {
           const payload = await apiGet("/api/courses", { auth: false });
           const courses = payload.data || [];
+          const completedIds = await loadCompletedResourceIds();
+          const progressByCourseId = {};
+          await Promise.all(
+            courses.map(async (c) => {
+              progressByCourseId[c.id] = await getCourseProgress(c.id, completedIds);
+            })
+          );
+
           statusEl.textContent = courses.length ? "" : "No courses available. Ask an admin to seed course data.";
           courses.forEach((c) => {
             const el = document.createElement("div");
@@ -183,6 +226,10 @@
             el.style.boxShadow = "0 10px 30px -10px rgba(0,0,0,0.08)";
             
             const category = c.subject_id ? `Subject ${c.subject_id}` : "Uncategorized";
+            const p = progressByCourseId[c.id] || { completed: 0, total: 0, percent: 0 };
+            const progressDetail = completedIds
+              ? `${p.completed} completed of ${p.total}`
+              : "Login to track progress";
             
             el.innerHTML = `
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -195,6 +242,17 @@
               <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px; flex-grow: 1;">
                 ${c.description ? c.description.slice(0, 140) + (c.description.length > 140 ? "…" : "") : "Fundamental concepts including search, knowledge representation, and machine learning."}
               </p>
+
+              <div style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <span style="font-weight: 700; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Course Progress</span>
+                  <span style="font-weight: 800; color: var(--good); font-size: 14px;">${p.percent}%</span>
+                </div>
+                <div style="width: 100%; height: 8px; background: var(--bg0); border-radius: 999px; overflow: hidden;">
+                  <div style="height: 100%; width: ${p.percent}%; background: var(--good); transition: width 0.25s ease;"></div>
+                </div>
+                <div class="muted" style="font-size: 12px; margin-top: 8px;">${progressDetail}</div>
+              </div>
               
               <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border);">
                 <span style="font-weight: 700; color: var(--accent); font-size: 14px;">CS Department</span>

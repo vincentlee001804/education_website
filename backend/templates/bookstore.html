@@ -211,7 +211,7 @@
         booksEl.innerHTML = "";
         statusEl.textContent = "Loading…";
         const qs = buildQuery(params);
-        const payload = await apiGet(`/api/books${qs ? "?" + qs : ""}`, { auth: false });
+        const payload = await apiGet(`/api/books${qs ? "?" + qs : ""}`);
         const books = payload.data || [];
 
         if (!books.length) {
@@ -235,6 +235,13 @@
           const coverImg = b.image_url 
             ? `<img alt="${b.title} cover" loading="lazy" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" src="${b.image_url}" />`
             : `<div style="width: 100%; height: 200px; background: var(--bg0); border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: var(--muted);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>`;
+          const isSoldOut = Boolean(b.sold_out) || Number(b.stock_count || 0) <= 0;
+          const actionBtn = isSoldOut
+            ? `<button class="btn outline" type="button" disabled style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: #F3F4F6; color: #6B7280; border-color: #D1D5DB; cursor: not-allowed;">Sold Out</button>`
+            : `<button class="btn" type="button" data-add="${b.id}" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                Add to Cart
+              </button>`;
 
           card.innerHTML = `
             ${coverImg}
@@ -249,11 +256,7 @@
             <p style="font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; flex-grow: 1;">
               ${b.description ? b.description.slice(0, 100) + (b.description.length > 100 ? "…" : "") : "Required reading material for the associated course curriculum."}
             </p>
-            
-            <button class="btn" type="button" data-add="${b.id}" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-              Add to Cart
-            </button>
+            ${actionBtn}
           `;
           booksEl.appendChild(card);
         });

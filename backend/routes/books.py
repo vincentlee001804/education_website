@@ -3,7 +3,7 @@ import uuid
 from decimal import Decimal
 
 from flask import Blueprint, jsonify, request, send_file, send_from_directory, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
 from passlib.hash import bcrypt
 from werkzeug.utils import secure_filename
 
@@ -55,7 +55,8 @@ def _decimal_to_float(x) -> float:
     return float(x)
 
 
-def _book_to_dict(b: Book, category_name: str | None = None):
+def _book_to_dict(b: Book, category_name: str | None = None, stock_count: int | None = None):
+    stock = 0 if stock_count is None else int(stock_count)
     return {
         "id": b.id,
         "title": b.title,
@@ -65,6 +66,8 @@ def _book_to_dict(b: Book, category_name: str | None = None):
         "category_id": b.category_id,
         "price": _decimal_to_float(b.price),
         "image_url": b.image_url,
+        "stock_count": stock,
+        "sold_out": stock <= 0,
     }
 
 
@@ -117,8 +120,35 @@ def list_books():
 
     books = q.order_by(Book.id.desc()).limit(100).all()
     categories = {c.id: c.name for c in BookCategory.query.all()}
+    stock_map = {inv.book_id: inv.stock_count for inv in Inventory.query.filter(Inventory.book_id.in_([b.id for b in books])).all()} if books else {}
+    cart_qty_map = {}
+    verify_jwt_in_request(optional=True)
+    user_id = get_jwt_identity()
+    if user_id is not None and books:
+        try:
+            uid = int(user_id)
+        except Exception:
+            uid = None
+        if uid is not None:
+            cart = Cart.query.filter_by(user_id=uid, status="active").first()
+            if cart:
+                cart_items = CartItem.query.filter_by(cart_id=cart.id).all()
+                for it in cart_items:
+                    cart_qty_map[it.book_id] = cart_qty_map.get(it.book_id, 0) + int(it.quantity or 0)
 
-    return jsonify({"data": [_book_to_dict(b, categories.get(b.category_id)) for b in books], "error": None})
+    return jsonify(
+        {
+            "data": [
+                _book_to_dict(
+                    b,
+                    categories.get(b.category_id),
+                    max(0, int(stock_map.get(b.id, 0)) - int(cart_qty_map.get(b.id, 0))),
+                )
+                for b in books
+            ],
+            "error": None,
+        }
+    )
 
 
 @books_bp.get("/books/<int:book_id>")
@@ -127,7 +157,8 @@ def get_book(book_id: int):
     if not b:
         return _json_error("Book not found", code="not_found", status_code=404)
     cat = BookCategory.query.get(b.category_id)
-    return jsonify({"data": _book_to_dict(b, cat.name if cat else None), "error": None})
+    inv = Inventory.query.get(book_id)
+    return jsonify({"data": _book_to_dict(b, cat.name if cat else None, inv.stock_count if inv else 0), "error": None})
 
 
 @books_bp.get("/books/categories")
@@ -153,6 +184,8 @@ def get_cart():
         b = Book.query.get(it.book_id)
         if not b:
             continue
+        inv = Inventory.query.get(it.book_id)
+        stock_count = int(inv.stock_count) if inv else 0
         line_total = Decimal(it.unit_price_snapshot) * it.quantity
         total += line_total
         out_items.append(
@@ -165,6 +198,7 @@ def get_cart():
                 "quantity": it.quantity,
                 "line_total": _decimal_to_float(line_total),
                 "image_url": b.image_url,
+                "stock_count": stock_count,
             }
         )
 
@@ -190,9 +224,16 @@ def add_to_cart():
     b = Book.query.get(book_id)
     if not b:
         return _json_error("Book not found", code="not_found", status_code=404)
+    inv = Inventory.query.get(book_id)
+    if not inv or inv.stock_count <= 0:
+        return _json_error("This book is sold out", code="sold_out", status_code=409)
 
     cart = _get_or_create_active_cart(user_id)
     existing = CartItem.query.filter_by(cart_id=cart.id, book_id=book_id).first()
+    current_qty = existing.quantity if existing else 0
+    requested_total = current_qty + quantity
+    if requested_total > inv.stock_count:
+        return _json_error("Requested quantity exceeds available stock", code="insufficient_stock", status_code=409)
     if existing:
         existing.quantity = min(99, existing.quantity + quantity)
     else:
@@ -227,6 +268,9 @@ def update_cart_item(item_id: int):
     cart = Cart.query.get(item.cart_id)
     if not cart or cart.user_id != user_id or cart.status != "active":
         return _json_error("Forbidden", code="forbidden", status_code=403)
+    inv = Inventory.query.get(item.book_id)
+    if not inv or quantity > inv.stock_count:
+        return _json_error("Requested quantity exceeds available stock", code="insufficient_stock", status_code=409)
 
     item.quantity = quantity
     db.session.commit()
@@ -289,7 +333,11 @@ def checkout():
             )
         )
 
-    cart.status = "checked_out"
+    # Keep only one active cart per user and avoid status uniqueness collisions
+    # by removing the active cart once checkout is finalized.
+    for it in items:
+        db.session.delete(it)
+    db.session.delete(cart)
     db.session.commit()
 
     return jsonify({"data": {"order_id": order.id, "total": _decimal_to_float(order.total_amount), "status": order.status}, "error": None}), 201
