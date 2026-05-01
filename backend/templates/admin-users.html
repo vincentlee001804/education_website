@@ -164,14 +164,22 @@
       const usersSkeleton = document.getElementById("users-skeleton");
       const retryBtn = document.getElementById("users-retry-btn");
 
-      function renderEmptyState(message) {
+      function setStatus(message, type = "info") {
+        if (typeof window.setStatusMessage === "function") {
+          window.setStatusMessage(usersStatus, message, type);
+          return;
+        }
         usersStatus.textContent = message;
+      }
+
+      function renderEmptyState(message) {
+        setStatus(message, "bad");
         usersList.innerHTML = "";
         usersEmpty.style.display = "block";
       }
 
       async function loadUsersDemo() {
-        usersStatus.textContent = "Loading users...";
+        setStatus("Loading users...");
         usersSkeleton.style.display = "flex";
         usersEmpty.style.display = "none";
         retryBtn.style.display = "none";
@@ -184,7 +192,12 @@
         retryBtn.style.display = "inline-flex";
       }
 
-      retryBtn.addEventListener("click", loadUsersDemo);
+      retryBtn.addEventListener("click", async (e) => {
+        await window.withButtonLoading(e.currentTarget, "Retrying...", async () => {
+          await loadUsersDemo();
+          window.showToast("User list refreshed.", "good");
+        });
+      });
       usersSearch.addEventListener("input", () => {
         renderEmptyState("No users matched your current filter.");
       });

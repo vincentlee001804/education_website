@@ -3,6 +3,51 @@ function writeText(el, text) {
   el.textContent = text;
 }
 
+function setStatusMessage(el, message, type = "info") {
+  if (!el) return;
+  el.className = "status";
+  if (type === "good") el.classList.add("good");
+  if (type === "bad") el.classList.add("bad");
+  el.textContent = message;
+}
+
+async function withButtonLoading(btn, pendingText, callback) {
+  if (!btn) return callback();
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = pendingText;
+  try {
+    return await callback();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+function showToast(message, type = "info", durationMs = 2600) {
+  let stack = document.getElementById("toast-stack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.id = "toast-stack";
+    stack.className = "toast-stack";
+    document.body.appendChild(stack);
+  }
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  if (type === "good") toast.classList.add("good");
+  if (type === "bad") toast.classList.add("bad");
+  toast.textContent = message;
+  stack.appendChild(toast);
+  window.setTimeout(() => {
+    toast.remove();
+    if (stack && !stack.children.length) stack.remove();
+  }, durationMs);
+}
+
+window.setStatusMessage = setStatusMessage;
+window.withButtonLoading = withButtonLoading;
+window.showToast = showToast;
+
 async function refreshAuthUI() {
   const token = readToken?.() ?? null;
   const loginLinks = document.querySelectorAll("[data-auth='logged-out']");

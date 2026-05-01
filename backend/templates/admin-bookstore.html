@@ -87,20 +87,63 @@
     <main>
       <a href="/admin" class="muted" style="display:inline-block; margin-bottom:12px;">&larr; Back to Admin Home</a>
       <h1 style="margin: 0 0 12px; font-size: 40px; color: var(--accent); font-weight: 800;">Bookstore Admin</h1>
-      <p class="muted" style="margin: 0 0 28px;">Create books and upload store assets.</p>
+      <p class="muted" style="margin: 0 0 28px;">Manage books and upload store assets.</p>
 
       <div class="card" style="padding:32px; border-radius:24px;">
-        <div style="display:flex; flex-direction:column; gap:24px;">
+        <div class="card tight" style="margin-bottom:18px; background: var(--bg0);">
+          <h3 style="margin: 0 0 12px; color: var(--accent);">Existing Bookstore Data</h3>
+          <div class="admin-data-table-wrap">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="books-table-body">
+                <tr><td colspan="7" class="muted">Loading books...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <button class="btn" type="button" id="toggle-book-workflow-btn" style="width:100%; margin-bottom:18px;">Create New Book Workflow</button>
+
+        <div id="book-workflow-panel" class="create-panel" style="display:none; flex-direction:column; gap:24px;">
           <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 1) Create Book</h3>
+            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 1) Manage Categories</h3>
+            <p class="helper-text muted">Select an existing category or type a new one for book creation.</p>
+            <div class="row" style="margin-bottom:10px;">
+              <div>
+                <label for="book-category-existing-id">Category</label>
+                <select id="book-category-existing-id" style="background:white;">
+                  <option value="">(optional)</option>
+                </select>
+              </div>
+              <div>
+                <label for="book-category-name">Or new category</label>
+                <input id="book-category-name" style="background:white;" />
+              </div>
+            </div>
+            <div class="inline-input-action">
+              <button class="btn" type="button" id="set-book-category-btn">Use Category</button>
+            </div>
+            <div class="helper-text muted" style="margin-top:8px;">Choose one path: existing dropdown OR new category input.</div>
+            <div class="muted" id="book-category-result" style="margin-top:12px; font-size:14px;"></div>
+          </div>
+
+          <div style="padding:24px; background:var(--bg0); border-radius:16px;">
+            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 2) Manage Books</h3>
             <form id="create-book-form" style="display:flex; flex-direction:column; gap:16px;">
               <div><label for="book-title">Title</label><input id="book-title" required style="background:white;" /></div>
               <div><label for="book-author">Author (optional)</label><input id="book-author" style="background:white;" /></div>
               <div><label for="book-description">Description (optional)</label><textarea id="book-description" style="background:white; min-height:80px;"></textarea></div>
-              <div class="row">
-                <div><label for="book-category-id">Category</label><select id="book-category-id" style="background:white;"><option value="">(optional)</option></select></div>
-                <div><label for="book-category-name">Or new category</label><input id="book-category-name" style="background:white;" /></div>
-              </div>
+              <div class="helper-text muted" style="margin-top:-6px;">Category comes from Step 1 selection.</div>
               <div class="row">
                 <div><label for="book-price">Price</label><input id="book-price" type="number" min="0" step="0.01" value="10" required style="background:white;" /></div>
                 <div><label for="book-stock">Stock count</label><input id="book-stock" type="number" min="0" value="5" required style="background:white;" /></div>
@@ -111,7 +154,7 @@
           </div>
 
           <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 2) Upload Assets</h3>
+            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 3) Upload Assets</h3>
             <div style="margin-bottom:16px; padding:12px; background:white; border-radius:8px; border:1px solid var(--border); font-size:14px;">
               Current book id: <strong id="current-book-id" style="color:var(--accent);">-</strong>
             </div>
@@ -184,17 +227,69 @@
       </div>
     </footer>
 
+    <div id="book-edit-modal" class="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="book-edit-modal-title">
+      <div class="admin-modal-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+          <h3 id="book-edit-modal-title" style="margin:0; color:var(--accent);">Edit Book Metadata</h3>
+          <button class="btn outline" type="button" id="book-edit-close-btn">Close</button>
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div><label for="book-edit-title">Title</label><input id="book-edit-title" /></div>
+          <div><label for="book-edit-author">Author</label><input id="book-edit-author" /></div>
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div>
+            <label for="book-edit-category-id">Category</label>
+            <select id="book-edit-category-id">
+              <option value="">(select category)</option>
+            </select>
+          </div>
+          <div><label for="book-edit-price">Price</label><input id="book-edit-price" type="number" min="0" step="0.01" /></div>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <label for="book-edit-category-name">Or new category</label>
+          <input id="book-edit-category-name" placeholder="Leave blank if using dropdown" />
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div><label for="book-edit-stock">Stock</label><input id="book-edit-stock" type="number" min="0" step="1" /></div>
+          <div></div>
+        </div>
+        <div><label for="book-edit-description">Description</label><textarea id="book-edit-description" style="min-height:90px;"></textarea></div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 12px;">
+          <button class="btn outline" type="button" id="book-edit-cancel-btn">Cancel</button>
+          <button class="btn" type="button" id="book-edit-apply-btn">Apply To Form</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
     <script>
       const $ = (id) => document.getElementById(id);
       const getToken = () => window.localStorage.getItem("access_token");
       let currentBookId = null;
+      let booksCache = [];
+      let expandedBookId = null;
+      let selectedBookId = null;
+      let preferredCategoryId = null;
+      let selectedCategoryId = null;
+      let selectedCategoryName = "";
+      const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
       function refreshUploadButtons() {
         const disabled = !currentBookId;
         $("upload-image-btn").disabled = disabled;
         $("upload-ebook-btn").disabled = disabled;
+      }
+
+      function setStatus(id, message, type = "info") {
+        const el = $(id);
+        if (!el) return;
+        if (typeof window.setStatusMessage === "function") {
+          window.setStatusMessage(el, message, type);
+          return;
+        }
+        el.textContent = message;
       }
 
       async function requireAuthOrThrow() {
@@ -204,78 +299,236 @@
       async function loadCategories() {
         const res = await apiGet("/api/books/categories", { auth: false });
         const categories = res.data || [];
-        const sel = $("book-category-id");
-        sel.innerHTML = `<option value="">(optional)</option>`;
+        const stepOneSel = $("book-category-existing-id");
+        const modalSel = $("book-edit-category-id");
+        const stepOnePreviousSelection = stepOneSel ? stepOneSel.value : "";
+        if (stepOneSel) stepOneSel.innerHTML = `<option value="">(optional)</option>`;
+        if (modalSel) modalSel.innerHTML = `<option value="">(select category)</option>`;
         categories.forEach((c) => {
-          const opt = document.createElement("option");
-          opt.value = String(c.id);
-          opt.textContent = c.name;
-          sel.appendChild(opt);
+          if (stepOneSel) {
+            const stepOneOpt = document.createElement("option");
+            stepOneOpt.value = String(c.id);
+            stepOneOpt.textContent = c.name;
+            stepOneSel.appendChild(stepOneOpt);
+          }
+          if (modalSel) {
+            const mOpt = document.createElement("option");
+            mOpt.value = String(c.id);
+            mOpt.textContent = c.name;
+            modalSel.appendChild(mOpt);
+          }
         });
+        const preferred = preferredCategoryId ? String(preferredCategoryId) : "";
+        const existingValues = new Set(categories.map((c) => String(c.id)));
+        if (stepOneSel) {
+          if (existingValues.has(preferred)) {
+            stepOneSel.value = preferred;
+          } else if (existingValues.has(stepOnePreviousSelection)) {
+            stepOneSel.value = stepOnePreviousSelection;
+          }
+        }
+        if (existingValues.has(preferred)) {
+          selectedCategoryId = Number(preferred);
+          selectedCategoryName = categories.find((c) => String(c.id) === preferred)?.name || "";
+        } else if (selectedCategoryId && !existingValues.has(String(selectedCategoryId))) {
+          selectedCategoryId = null;
+          selectedCategoryName = "";
+        }
+        preferredCategoryId = null;
+      }
+
+      async function loadBooks() {
+        const res = await apiGet("/api/books", { auth: false });
+        renderBooks(res.data || []);
+      }
+
+      function renderBooks(books) {
+        const tbody = $("books-table-body");
+        if (!tbody) return;
+        booksCache = books;
+        if (!books.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="muted">No books available yet.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = books.map((b) => {
+          const isExpanded = String(expandedBookId) === String(b.id);
+          const detail = `
+            <tr class="admin-detail-row" style="${isExpanded ? "" : "display:none;"}" data-detail-for="B${b.id}">
+              <td colspan="7">
+                <div class="admin-detail-grid">
+                  <div class="admin-detail-item"><strong>ID:</strong> B${b.id}</div>
+                  <div class="admin-detail-item"><strong>Category:</strong> ${b.category_name || "-"}</div>
+                  <div class="admin-detail-item"><strong>Author:</strong> ${b.author || "-"}</div>
+                  <div class="admin-detail-item"><strong>Price:</strong> $${Number(b.price || 0).toFixed(2)}</div>
+                  <div class="admin-detail-item"><strong>Stock:</strong> ${b.stock_count ?? 0}</div>
+                  <div class="admin-detail-item"><strong>Description:</strong> ${b.description || "-"}</div>
+                </div>
+              </td>
+            </tr>
+          `;
+          return `
+            <tr class="data-row" data-book-id="${b.id}">
+              <td><span class="pill">B${b.id}</span></td>
+              <td><div class="admin-cell-truncate" title="${b.title || "-"}">${b.title || "-"}</div></td>
+              <td><div class="admin-cell-truncate" title="${b.author || "-"}">${b.author || "-"}</div></td>
+              <td><div class="admin-cell-truncate" title="${b.category_name || "-"}">${b.category_name || "-"}</div></td>
+              <td>$${Number(b.price || 0).toFixed(2)}</td>
+              <td>${b.stock_count ?? 0}</td>
+              <td><button class="btn outline xs edit-book-row-btn" type="button" data-book-id="${b.id}">Edit</button></td>
+            </tr>
+            ${detail}
+          `;
+        }).join("");
+      }
+
+      function openBookWorkflowPanel() {
+        const workflowBtn = $("toggle-book-workflow-btn");
+        const workflowPanel = $("book-workflow-panel");
+        if (!workflowBtn || !workflowPanel) return;
+        if (workflowPanel.style.display !== "flex") {
+          workflowPanel.style.display = "flex";
+          workflowBtn.textContent = "Hide Create Workflow";
+        }
+      }
+
+      function handleBookRowEdit(bookId) {
+        const book = booksCache.find((b) => String(b.id) === String(bookId));
+        if (!book) return;
+        openBookWorkflowPanel();
+        $("book-title").value = $("book-edit-title").value || book.title || "";
+        $("book-author").value = $("book-edit-author").value || book.author || "";
+        $("book-description").value = $("book-edit-description").value || book.description || "";
+        $("book-price").value = Number($("book-edit-price").value || book.price || 0);
+        $("book-stock").value = Number($("book-edit-stock").value || (book.stock_count ?? 0));
+        const editedCategoryId = $("book-edit-category-id").value;
+        const editedCategoryName = $("book-edit-category-name").value.trim();
+        if (editedCategoryId) {
+          const category = Array.from($("book-edit-category-id").options).find((o) => o.value === editedCategoryId);
+          selectedCategoryId = Number(editedCategoryId);
+          selectedCategoryName = category?.textContent || "";
+          $("book-category-existing-id").value = editedCategoryId;
+          $("book-category-name").value = "";
+          setStatus("book-category-result", `Using category: ${selectedCategoryName}.`, "good");
+        } else {
+          selectedCategoryId = null;
+          selectedCategoryName = editedCategoryName || book.category_name || "";
+          $("book-category-existing-id").value = "";
+          $("book-category-name").value = selectedCategoryName;
+          setStatus("book-category-result", `Using new category: ${selectedCategoryName || "-"}.`, "good");
+        }
+        currentBookId = book.id;
+        $("current-book-id").textContent = String(book.id);
+        refreshUploadButtons();
+        setStatus("book-result", `Editing context loaded for book id: ${book.id}.`, "good");
+        window.showToast("Book loaded into form.", "good");
+      }
+
+      function openBookEditModal(bookId) {
+        const book = booksCache.find((b) => String(b.id) === String(bookId));
+        if (!book) return;
+        selectedBookId = bookId;
+        $("book-edit-title").value = book.title || "";
+        $("book-edit-author").value = book.author || "";
+        const modalSel = $("book-edit-category-id");
+        const matchingOption = Array.from(modalSel.options).find((o) => o.textContent === (book.category_name || ""));
+        $("book-edit-category-id").value = matchingOption ? matchingOption.value : "";
+        $("book-edit-category-name").value = matchingOption ? "" : (book.category_name || "");
+        $("book-edit-price").value = Number(book.price || 0);
+        $("book-edit-stock").value = Number(book.stock_count ?? 0);
+        $("book-edit-description").value = book.description || "";
+        $("book-edit-modal").classList.add("open");
+      }
+
+      function closeBookEditModal() {
+        $("book-edit-modal").classList.remove("open");
+        selectedBookId = null;
       }
 
       $("create-book-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        await requireAuthOrThrow();
-        $("book-result").textContent = "Creating book...";
-        try {
-          const payload = await apiPost("/api/admin/books", {
-            title: $("book-title").value.trim(),
-            author: $("book-author").value.trim() || null,
-            description: $("book-description").value.trim() || null,
-            price: Number($("book-price").value),
-            stock_count: Number($("book-stock").value),
-            category_id: $("book-category-id").value ? Number($("book-category-id").value) : null,
-            category_name: $("book-category-name").value.trim() || null
-          }, { auth: true });
-          currentBookId = payload.data.book_id;
-          $("current-book-id").textContent = String(currentBookId);
-          refreshUploadButtons();
-          $("image-upload-badge").style.display = "none";
-          $("ebook-upload-badge").style.display = "none";
-          $("book-result").textContent = `Created book id: ${currentBookId}. Now upload cover and PDF.`;
-          $("create-book-form").reset();
-        } catch (e2) {
-          $("book-result").textContent = e2.message || "Failed to create book.";
-        }
+        const submitBtn = e.currentTarget.querySelector("button[type='submit']");
+        await window.withButtonLoading(submitBtn, "Creating...", async () => {
+          await requireAuthOrThrow();
+          setStatus("book-result", "Creating book...");
+          try {
+            const payload = await apiPost("/api/admin/books", {
+              title: $("book-title").value.trim(),
+              author: $("book-author").value.trim() || null,
+              description: $("book-description").value.trim() || null,
+              price: Number($("book-price").value),
+              stock_count: Number($("book-stock").value),
+              category_id: selectedCategoryId ? Number(selectedCategoryId) : null,
+              category_name: selectedCategoryId ? null : (selectedCategoryName.trim() || null)
+            }, { auth: true });
+            currentBookId = payload.data.book_id;
+            if (selectedCategoryId) preferredCategoryId = selectedCategoryId;
+            $("current-book-id").textContent = String(currentBookId);
+            refreshUploadButtons();
+            $("image-upload-badge").style.display = "none";
+            $("ebook-upload-badge").style.display = "none";
+            setStatus("book-result", `Created book id: ${currentBookId}. Now upload cover and PDF.`, "good");
+            window.showToast("Book created successfully.", "good");
+            $("book-title").value = "";
+            $("book-author").value = "";
+            $("book-description").value = "";
+            $("book-price").value = "10";
+            $("book-stock").value = "5";
+            await loadBooks();
+          } catch (e2) {
+            setStatus("book-result", e2.message || "Failed to create book.", "bad");
+            window.showToast(e2.message || "Failed to create book.", "bad");
+          }
+        });
       });
 
-      $("upload-image-btn").addEventListener("click", async () => {
-        $("upload-result").textContent = "";
-        try {
-          await requireAuthOrThrow();
-          if (!currentBookId) throw new Error("Create a book first.");
-          const file = $("book-image-file").files[0];
-          if (!file) throw new Error("Select an image file first.");
-          const fd = new FormData();
-          fd.append("file", file);
-          await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, fd, { auth: true });
-          $("upload-result").textContent = "Image uploaded successfully.";
-          $("image-upload-badge").style.display = "inline-flex";
-          $("book-image-file").value = "";
-          $("image-file-name").textContent = "No file selected.";
-        } catch (e2) {
-          $("upload-result").textContent = e2.message || "Image upload failed.";
-        }
+      $("upload-image-btn").addEventListener("click", async (e) => {
+        setStatus("upload-result", "");
+        await window.withButtonLoading(e.currentTarget, "Uploading...", async () => {
+          try {
+            await requireAuthOrThrow();
+            if (!currentBookId) throw new Error("Create a book first.");
+            const file = $("book-image-file").files[0];
+            if (!file) throw new Error("Select an image file first.");
+            if (!file.type.startsWith("image/")) throw new Error("Cover must be an image file.");
+            if (file.size > MAX_UPLOAD_BYTES) throw new Error("Cover image exceeds 10MB.");
+            const fd = new FormData();
+            fd.append("file", file);
+            await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, fd, { auth: true });
+            setStatus("upload-result", "Image uploaded successfully.", "good");
+            window.showToast("Cover image uploaded.", "good");
+            $("image-upload-badge").style.display = "inline-flex";
+            $("book-image-file").value = "";
+            $("image-file-name").textContent = "No file selected.";
+          } catch (e2) {
+            setStatus("upload-result", e2.message || "Image upload failed.", "bad");
+            window.showToast(e2.message || "Image upload failed.", "bad");
+          }
+        });
       });
 
-      $("upload-ebook-btn").addEventListener("click", async () => {
-        $("upload-result").textContent = "";
-        try {
-          await requireAuthOrThrow();
-          if (!currentBookId) throw new Error("Create a book first.");
-          const file = $("ebook-pdf-file").files[0];
-          if (!file) throw new Error("Select a PDF file first.");
-          const fd = new FormData();
-          fd.append("file", file);
-          await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, fd, { auth: true });
-          $("upload-result").textContent = "Ebook PDF uploaded successfully.";
-          $("ebook-upload-badge").style.display = "inline-flex";
-          $("ebook-pdf-file").value = "";
-          $("ebook-file-name").textContent = "No file selected.";
-        } catch (e2) {
-          $("upload-result").textContent = e2.message || "PDF upload failed.";
-        }
+      $("upload-ebook-btn").addEventListener("click", async (e) => {
+        setStatus("upload-result", "");
+        await window.withButtonLoading(e.currentTarget, "Uploading...", async () => {
+          try {
+            await requireAuthOrThrow();
+            if (!currentBookId) throw new Error("Create a book first.");
+            const file = $("ebook-pdf-file").files[0];
+            if (!file) throw new Error("Select a PDF file first.");
+            if (file.type !== "application/pdf") throw new Error("Ebook must be a PDF file.");
+            if (file.size > MAX_UPLOAD_BYTES) throw new Error("PDF exceeds 10MB.");
+            const fd = new FormData();
+            fd.append("file", file);
+            await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, fd, { auth: true });
+            setStatus("upload-result", "Ebook PDF uploaded successfully.", "good");
+            window.showToast("Ebook PDF uploaded.", "good");
+            $("ebook-upload-badge").style.display = "inline-flex";
+            $("ebook-pdf-file").value = "";
+            $("ebook-file-name").textContent = "No file selected.";
+          } catch (e2) {
+            setStatus("upload-result", e2.message || "PDF upload failed.", "bad");
+            window.showToast(e2.message || "PDF upload failed.", "bad");
+          }
+        });
       });
 
       $("book-image-file").addEventListener("change", (e) => {
@@ -287,10 +540,84 @@
         const file = e.target.files?.[0];
         $("ebook-file-name").textContent = file ? `Selected: ${file.name}` : "No file selected.";
       });
+      $("books-table-body").addEventListener("click", (e) => {
+        const btn = e.target.closest(".edit-book-row-btn");
+        if (btn) {
+          e.stopPropagation();
+          openBookEditModal(btn.dataset.bookId);
+          return;
+        }
+        const row = e.target.closest("tr.data-row");
+        if (!row) return;
+        const bookId = row.dataset.bookId;
+        expandedBookId = String(expandedBookId) === String(bookId) ? null : bookId;
+        renderBooks(booksCache);
+      });
 
       document.addEventListener("DOMContentLoaded", async () => {
         refreshUploadButtons();
-        await loadCategories();
+        const workflowBtn = $("toggle-book-workflow-btn");
+        const workflowPanel = $("book-workflow-panel");
+        if (workflowBtn && workflowPanel) {
+          workflowBtn.addEventListener("click", () => {
+            const isOpen = workflowPanel.style.display === "flex";
+            workflowPanel.style.display = isOpen ? "none" : "flex";
+            workflowBtn.textContent = isOpen ? "Create New Book Workflow" : "Hide Create Workflow";
+          });
+        }
+        await Promise.all([loadCategories(), loadBooks()]);
+      });
+      $("book-edit-close-btn").addEventListener("click", closeBookEditModal);
+      $("book-edit-cancel-btn").addEventListener("click", closeBookEditModal);
+      $("book-edit-modal").addEventListener("click", (e) => {
+        if (e.target.id === "book-edit-modal") closeBookEditModal();
+      });
+      $("book-edit-apply-btn").addEventListener("click", () => {
+        if (!selectedBookId) return;
+        handleBookRowEdit(selectedBookId);
+        closeBookEditModal();
+      });
+      $("set-book-category-btn").addEventListener("click", () => {
+        const existingCategoryId = $("book-category-existing-id").value;
+        const typedCategoryName = $("book-category-name").value.trim();
+        if (existingCategoryId) {
+          selectedCategoryId = Number(existingCategoryId);
+          selectedCategoryName = "";
+          const selectedCategory = Array.from($("book-category-existing-id").options).find((o) => o.value === existingCategoryId);
+          selectedCategoryName = selectedCategory?.textContent || "";
+          setStatus("book-category-result", `Using existing category: ${selectedCategoryName}.`, "good");
+          window.showToast("Existing category selected.", "good");
+          return;
+        }
+        if (!typedCategoryName) {
+          setStatus("book-category-result", "Select or type a category first.", "bad");
+          window.showToast("Select or type a category first.", "bad");
+          return;
+        }
+        selectedCategoryId = null;
+        selectedCategoryName = typedCategoryName;
+        setStatus("book-category-result", `Using new category: ${selectedCategoryName}.`, "good");
+        window.showToast("New category context set.", "good");
+      });
+      $("book-category-existing-id").addEventListener("change", (e) => {
+        const value = e.target.value;
+        if (!value) {
+          selectedCategoryId = null;
+          return;
+        }
+        $("book-category-name").value = "";
+        selectedCategoryId = Number(value);
+        selectedCategoryName = Array.from(e.target.options).find((o) => o.value === value)?.textContent || "";
+      });
+      $("book-category-name").addEventListener("input", (e) => {
+        const typed = e.target.value.trim();
+        if (!typed) {
+          selectedCategoryName = "";
+          return;
+        }
+        $("book-category-existing-id").value = "";
+        selectedCategoryId = null;
+        selectedCategoryName = typed;
       });
     </script>
   </body>

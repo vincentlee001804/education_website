@@ -87,26 +87,59 @@
     <main>
       <a href="/admin" class="muted" style="display:inline-block; margin-bottom:12px;">&larr; Back to Admin Home</a>
       <h1 style="margin: 0 0 12px; font-size: 40px; color: var(--accent); font-weight: 800;">Course Management</h1>
-      <p class="muted" style="margin: 0 0 28px;">Create subjects, courses, modules, and resources.</p>
+      <p class="muted" style="margin: 0 0 28px;">Manage subjects, courses, modules, and resources.</p>
 
       <div class="card" style="padding:32px; border-radius:24px;">
-        <div id="admin-course-status" class="muted" style="margin-bottom:24px; font-weight:600;">Loading...</div>
-        <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="card tight" style="margin-bottom:18px; background: var(--bg0);">
+          <h3 style="margin: 0 0 12px; color: var(--accent);">Current Course Data</h3>
+          <div class="admin-data-table-wrap">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Subject</th>
+                  <th>Course</th>
+                  <th>Module</th>
+                  <th>Resource</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="course-data-table-body">
+                <tr><td colspan="6" class="muted">Loading existing data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <button class="btn" type="button" id="toggle-create-workflow-btn" style="width:100%; margin-bottom:18px;">Create New Course Structure</button>
+
+        <div id="create-workflow-panel" class="create-panel" style="display:none; flex-direction:column; gap:18px;">
           <details class="admin-accordion" open>
-            <summary>1) Subjects</summary>
-            <p class="helper-text muted">Create subject first before creating a course.</p>
-            <label for="subject-name">Subject name</label>
-            <div class="inline-input-action">
-              <input id="subject-name" placeholder="e.g., Computer Science" style="background:white;" />
-              <button class="btn" type="button" id="create-subject-btn">Create</button>
+            <summary>1) Manage Subjects</summary>
+            <p class="helper-text muted">Select an existing subject or create a new one.</p>
+            <div class="row" style="margin-bottom:10px;">
+              <div>
+                <label for="subject-existing-id">Subject</label>
+                <select id="subject-existing-id" style="background:white;">
+                  <option value="">(optional)</option>
+                </select>
+              </div>
+              <div>
+                <label for="subject-name">Or new subject</label>
+                <input id="subject-name" placeholder="e.g., Computer Science" style="background:white;" />
+              </div>
             </div>
+            <div class="inline-input-action">
+              <button class="btn" type="button" id="create-subject-btn">Use / Create Subject</button>
+            </div>
+            <div class="helper-text muted" style="margin-top:8px;">Choose one path: existing dropdown OR new subject input.</div>
             <div id="subject-error" class="field-error"></div>
             <div class="muted" id="subject-result" style="margin-top:12px; font-size:14px;"></div>
           </details>
 
           <details class="admin-accordion">
-            <summary>2) Courses</summary>
-            <p class="helper-text muted">Create a course under an existing subject or add a new subject inline.</p>
+            <summary>2) Manage Courses</summary>
+            <p class="helper-text muted">Use this form to create a new course.</p>
             <form id="create-course-form" style="display:flex; flex-direction:column; gap:16px;">
               <div>
                 <label for="course-title">Course title</label>
@@ -114,23 +147,23 @@
                 <div id="course-title-error" class="field-error"></div>
               </div>
               <div><label for="course-description">Description</label><textarea id="course-description" placeholder="Short course overview (optional)" style="background:white; min-height:80px;"></textarea></div>
-              <div class="row">
-                <div><label for="course-subject-id">Subject</label><select id="course-subject-id" style="background:white;"><option value="">(optional)</option></select></div>
-                <div><label for="course-subject-name">Or new subject</label><input id="course-subject-name" placeholder="Leave blank if using dropdown" style="background:white;" /></div>
-              </div>
-              <div class="helper-text muted" style="margin-top:-6px;">Choose one path: select existing subject OR type a new subject.</div>
+              <div class="helper-text muted" style="margin-top:-6px;">Subject comes from Step 1 selection.</div>
               <button class="btn" type="submit">Create Course</button>
             </form>
             <div class="muted" id="course-result" style="margin-top:12px; font-size:14px;"></div>
           </details>
 
           <details class="admin-accordion">
-            <summary>3) Modules</summary>
-            <p class="helper-text muted">Create modules after choosing an existing course.</p>
+            <summary>3) Manage Modules</summary>
+            <p class="helper-text muted">Select a course and create a new module.</p>
+            <div class="row" style="margin-bottom: 10px;">
+              <div><label for="module-course-select">Choose course</label><select id="module-course-select" required style="background:white;"></select></div>
+              <div></div>
+            </div>
             <form id="create-module-form" style="display:flex; flex-direction:column; gap:16px;">
               <div class="row">
-                <div><label for="module-course-select">Choose course</label><select id="module-course-select" required style="background:white;"></select></div>
                 <div><label for="module-order-index">Order index</label><input id="module-order-index" type="number" min="0" value="0" style="background:white;" /></div>
+                <div></div>
               </div>
               <div>
                 <label for="module-title">Module title</label>
@@ -143,12 +176,20 @@
           </details>
 
           <details class="admin-accordion">
-            <summary>4) Resources</summary>
-            <p class="helper-text muted">Create resources only after a module is created and selected.</p>
+            <summary>4) Manage Resources</summary>
+            <p class="helper-text muted">Select a module and create a new resource.</p>
+            <div class="row" style="margin-bottom: 10px;">
+              <div>
+                <label for="resource-module-select">Choose module</label>
+                <select id="resource-module-select" required style="background:white;"></select>
+                <div class="helper-text">Auto-selects the latest module when available.</div>
+              </div>
+              <div></div>
+            </div>
             <form id="create-resource-form" style="display:flex; flex-direction:column; gap:16px;">
               <div class="row">
-                <div><label for="resource-module-select">Choose module</label><select id="resource-module-select" required style="background:white;"></select></div>
                 <div><label for="resource-type">Resource type</label><select id="resource-type" required style="background:white;"><option value="note">Note</option><option value="video">Video</option></select></div>
+                <div></div>
               </div>
               <div>
                 <label for="resource-title">Resource title</label>
@@ -213,11 +254,66 @@
       </div>
     </footer>
 
+    <div id="course-edit-modal" class="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="course-edit-modal-title">
+      <div class="admin-modal-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
+          <h3 id="course-edit-modal-title" style="margin:0; color:var(--accent);">Edit Course Metadata</h3>
+          <button class="btn outline" type="button" id="course-edit-close-btn">Close</button>
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div>
+            <label for="course-edit-subject">Subject</label>
+            <select id="course-edit-subject">
+              <option value="">(select subject)</option>
+            </select>
+          </div>
+          <div>
+            <label for="course-edit-course">Course</label>
+            <input id="course-edit-course" />
+          </div>
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div>
+            <label for="course-edit-module">Module</label>
+            <input id="course-edit-module" />
+          </div>
+          <div>
+            <label for="course-edit-resource">Resource</label>
+            <input id="course-edit-resource" />
+          </div>
+        </div>
+        <div class="row" style="margin-bottom: 12px;">
+          <div>
+            <label for="course-edit-resource-type">Resource type</label>
+            <select id="course-edit-resource-type">
+              <option value="note">Note</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+          <div></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn outline" type="button" id="course-edit-cancel-btn">Cancel</button>
+          <button class="btn" type="button" id="course-edit-apply-btn">Apply To Form</button>
+        </div>
+      </div>
+    </div>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
     <script>
       const $ = (id) => document.getElementById(id);
       const getToken = () => window.localStorage.getItem("access_token");
+      let subjectsCache = [];
+      let coursesCache = [];
+      let courseRowsCache = [];
+      let expandedCourseRowId = null;
+      let selectedCourseRowId = null;
+      let preferredSubjectId = null;
+      let selectedSubjectId = null;
+      let selectedSubjectName = "";
+      let preferredCourseId = null;
+      let preferredModuleId = null;
 
       async function requireAuthOrThrow() {
         if (!getToken()) throw new Error("Please login first.");
@@ -229,23 +325,83 @@
         el.textContent = message || "";
       }
 
+      function setStatus(id, message, type = "info") {
+        const el = $(id);
+        if (!el) return;
+        if (typeof window.setStatusMessage === "function") {
+          window.setStatusMessage(el, message, type);
+          return;
+        }
+        el.textContent = message;
+      }
+
+      function isValidYouTubeUrl(url) {
+        return /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(url);
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function parseResourceCell(resourceText) {
+        const text = resourceText || "";
+        const match = text.match(/^(.*)\s\(([A-Z]+)\)$/);
+        if (!match) return { title: text, type: "" };
+        return { title: match[1], type: match[2] };
+      }
+
       async function loadSubjects() {
         const res = await apiGet("/api/subjects", { auth: false });
         const subjects = res.data || [];
-        const sel = $("course-subject-id");
-        sel.innerHTML = `<option value="">(optional)</option>`;
+        subjectsCache = subjects;
+        const stepOneSel = $("subject-existing-id");
+        const modalSel = $("course-edit-subject");
+        const stepOnePreviousSelection = stepOneSel ? stepOneSel.value : "";
+        if (stepOneSel) stepOneSel.innerHTML = `<option value="">(optional)</option>`;
+        if (modalSel) modalSel.innerHTML = `<option value="">(select subject)</option>`;
         subjects.forEach((s) => {
-          const opt = document.createElement("option");
-          opt.value = String(s.id);
-          opt.textContent = s.name;
-          sel.appendChild(opt);
+          if (stepOneSel) {
+            const stepOneOpt = document.createElement("option");
+            stepOneOpt.value = String(s.id);
+            stepOneOpt.textContent = s.name;
+            stepOneSel.appendChild(stepOneOpt);
+          }
+          if (modalSel) {
+            const modalOpt = document.createElement("option");
+            modalOpt.value = String(s.id);
+            modalOpt.textContent = s.name;
+            modalSel.appendChild(modalOpt);
+          }
         });
+        const preferred = preferredSubjectId ? String(preferredSubjectId) : "";
+        const existingValues = new Set(subjects.map((s) => String(s.id)));
+        if (stepOneSel) {
+          if (existingValues.has(preferred)) {
+            stepOneSel.value = preferred;
+          } else if (existingValues.has(stepOnePreviousSelection)) {
+            stepOneSel.value = stepOnePreviousSelection;
+          }
+        }
+        if (existingValues.has(preferred)) {
+          selectedSubjectId = Number(preferred);
+          selectedSubjectName = subjects.find((s) => String(s.id) === preferred)?.name || "";
+        } else if (selectedSubjectId && !existingValues.has(String(selectedSubjectId))) {
+          selectedSubjectId = null;
+          selectedSubjectName = "";
+        }
+        preferredSubjectId = null;
       }
 
-      async function loadModulesForCourse(courseId) {
+      async function loadModulesForCourse(courseId, preferredModule = null) {
         const res = await apiGet(`/api/courses/${courseId}/modules`, { auth: false });
         const modules = res.data || [];
         const mSel = $("resource-module-select");
+        const previousSelection = mSel.value;
         mSel.innerHTML = "";
         modules.forEach((m) => {
           const opt = document.createElement("option");
@@ -253,12 +409,28 @@
           opt.textContent = m.title;
           mSel.appendChild(opt);
         });
+        if (modules.length) {
+          const preferred = preferredModule ? String(preferredModule) : "";
+          const existingValues = new Set(modules.map((m) => String(m.id)));
+          const selectedId = existingValues.has(preferred)
+            ? preferred
+            : (existingValues.has(previousSelection) ? previousSelection : String(modules[modules.length - 1].id));
+          mSel.value = selectedId;
+          await loadResourcesForModule(Number(selectedId));
+        }
+      }
+
+      async function loadResourcesForModule(moduleId) {
+        const res = await apiGet(`/api/modules/${moduleId}/resources`, { auth: false });
+        return res.data || [];
       }
 
       async function loadCourses() {
         const res = await apiGet("/api/courses", { auth: false });
         const courses = res.data || [];
+        coursesCache = courses;
         const sel = $("module-course-select");
+        const previousSelection = sel.value;
         sel.innerHTML = "";
         courses.forEach((c) => {
           const opt = document.createElement("option");
@@ -266,7 +438,236 @@
           opt.textContent = c.title;
           sel.appendChild(opt);
         });
-        if (courses.length) await loadModulesForCourse(courses[0].id);
+        if (courses.length) {
+          const preferred = preferredCourseId ? String(preferredCourseId) : "";
+          const existingValues = new Set(courses.map((c) => String(c.id)));
+          const selectedCourseId = existingValues.has(preferred)
+            ? preferred
+            : (existingValues.has(previousSelection) ? previousSelection : String(courses[courses.length - 1].id));
+          sel.value = selectedCourseId;
+          await loadModulesForCourse(Number(selectedCourseId), preferredModuleId);
+        }
+        preferredCourseId = null;
+        preferredModuleId = null;
+        await buildCourseDataTable();
+      }
+
+      function getSubjectLabelForCourse(course, subjectNameById) {
+        return course.subject_name || subjectNameById.get(String(course.subject_id || "")) || "-";
+      }
+
+      async function buildCourseDataTable() {
+        const tbody = $("course-data-table-body");
+        if (!tbody) return;
+        const subjectNameById = new Map(subjectsCache.map((s) => [String(s.id), s.name]));
+        const usedSubjectNames = new Set();
+        const rows = [];
+
+        for (const course of coursesCache) {
+          const subjectLabel = getSubjectLabelForCourse(course, subjectNameById);
+          if (subjectLabel !== "-") usedSubjectNames.add(subjectLabel);
+          const modulesRes = await apiGet(`/api/courses/${course.id}/modules`, { auth: false });
+          const modules = modulesRes.data || [];
+
+          if (!modules.length) {
+            rows.push({
+              kind: "course",
+              id: `C${course.id}`,
+              subject: subjectLabel,
+              course: course.title,
+              module: "-",
+              resource: "-",
+              course_id: course.id,
+              course_title: course.title,
+              course_description: course.description || ""
+            });
+            continue;
+          }
+
+          for (const module of modules) {
+            const resourcesRes = await apiGet(`/api/modules/${module.id}/resources`, { auth: false });
+            const resources = resourcesRes.data || [];
+            if (!resources.length) {
+              rows.push({
+                kind: "module",
+                id: `M${module.id}`,
+                subject: subjectLabel,
+                course: course.title,
+                module: module.title,
+                resource: "-",
+                course_id: course.id,
+                module_id: module.id,
+                module_title: module.title,
+                module_order_index: module.order_index ?? 0
+              });
+              continue;
+            }
+            for (const resource of resources) {
+              rows.push({
+                kind: "resource",
+                id: `R${resource.id}`,
+                subject: subjectLabel,
+                course: course.title,
+                module: module.title,
+                resource: `${resource.title} (${String(resource.resource_type || "").toUpperCase()})`,
+                module_id: module.id,
+                resource_id: resource.id,
+                resource_type: resource.resource_type || "note",
+                resource_title: resource.title || "",
+                resource_content_text: resource.content_text || "",
+                resource_content_url: resource.content_url || ""
+              });
+            }
+          }
+        }
+
+        for (const subject of subjectsCache) {
+          if (usedSubjectNames.has(subject.name)) continue;
+          rows.push({
+            kind: "subject",
+            id: `S${subject.id}`,
+            subject: subject.name,
+            course: "-",
+            module: "-",
+            resource: "-",
+            subject_name: subject.name
+          });
+        }
+
+        courseRowsCache = rows;
+
+        if (!rows.length) {
+          tbody.innerHTML = `<tr><td colspan="6" class="muted">No existing data found.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = rows.map((row) => {
+          const isExpanded = row.id === expandedCourseRowId;
+          const detail = `
+            <tr class="admin-detail-row" style="${isExpanded ? "" : "display:none;"}" data-detail-for="${escapeHtml(row.id)}">
+              <td colspan="6">
+                <div class="admin-detail-grid">
+                  <div class="admin-detail-item"><strong>ID:</strong> ${escapeHtml(row.id)}</div>
+                  <div class="admin-detail-item"><strong>Type:</strong> ${escapeHtml(row.kind)}</div>
+                  <div class="admin-detail-item"><strong>Subject:</strong> ${escapeHtml(row.subject)}</div>
+                  <div class="admin-detail-item"><strong>Course:</strong> ${escapeHtml(row.course)}</div>
+                  <div class="admin-detail-item"><strong>Module:</strong> ${escapeHtml(row.module)}</div>
+                  <div class="admin-detail-item"><strong>Resource:</strong> ${escapeHtml(row.resource)}</div>
+                </div>
+              </td>
+            </tr>
+          `;
+          return `
+            <tr class="data-row" data-row-id="${escapeHtml(row.id)}">
+              <td><span class="pill">${escapeHtml(row.id)}</span></td>
+              <td><div class="admin-cell-truncate" title="${escapeHtml(row.subject)}">${escapeHtml(row.subject)}</div></td>
+              <td><div class="admin-cell-truncate" title="${escapeHtml(row.course)}">${escapeHtml(row.course)}</div></td>
+              <td><div class="admin-cell-truncate" title="${escapeHtml(row.module)}">${escapeHtml(row.module)}</div></td>
+              <td><div class="admin-cell-truncate" title="${escapeHtml(row.resource)}">${escapeHtml(row.resource)}</div></td>
+              <td><button class="btn outline xs edit-course-row-btn" type="button" data-row-id="${escapeHtml(row.id)}">Edit</button></td>
+            </tr>
+            ${detail}
+          `;
+        }).join("");
+      }
+
+      function openWorkflowPanel() {
+        const workflowBtn = $("toggle-create-workflow-btn");
+        const workflowPanel = $("create-workflow-panel");
+        if (!workflowBtn || !workflowPanel) return;
+        if (workflowPanel.style.display !== "flex") {
+          workflowPanel.style.display = "flex";
+          workflowBtn.textContent = "Hide Create Workflow";
+        }
+      }
+
+      function openCourseEditModal(rowId) {
+        const row = courseRowsCache.find((r) => r.id === rowId);
+        if (!row) return;
+        selectedCourseRowId = rowId;
+        const subjectMatch = subjectsCache.find((s) => s.name === row.subject);
+        $("course-edit-subject").value = subjectMatch ? String(subjectMatch.id) : "";
+        $("course-edit-course").value = row.course === "-" ? "" : row.course;
+        $("course-edit-module").value = row.module === "-" ? "" : row.module;
+        const parsedResource = parseResourceCell(row.resource === "-" ? "" : row.resource);
+        $("course-edit-resource").value = parsedResource.title || "";
+        $("course-edit-resource-type").value = (row.resource_type || parsedResource.type || "note").toLowerCase();
+        $("course-edit-modal").classList.add("open");
+      }
+
+      function closeCourseEditModal() {
+        $("course-edit-modal").classList.remove("open");
+        selectedCourseRowId = null;
+      }
+
+      function handleCourseRowEdit(rowId) {
+        const row = courseRowsCache.find((r) => r.id === rowId);
+        if (!row) return;
+        openWorkflowPanel();
+        const sections = Array.from(document.querySelectorAll(".admin-accordion"));
+        sections.forEach((s) => s.removeAttribute("open"));
+
+        if (row.kind === "subject") {
+          sections[0]?.setAttribute("open", "open");
+          const editedSubjectId = $("course-edit-subject").value;
+          const selectedSubject = subjectsCache.find((s) => String(s.id) === String(editedSubjectId));
+          if (editedSubjectId) {
+            $("subject-existing-id").value = editedSubjectId;
+            $("subject-name").value = "";
+          } else {
+            $("subject-existing-id").value = "";
+            $("subject-name").value = selectedSubject?.name || row.subject_name || "";
+          }
+          selectedSubjectId = editedSubjectId ? Number(editedSubjectId) : null;
+          selectedSubjectName = selectedSubject?.name || row.subject_name || "";
+          window.showToast("Subject loaded into form.", "good");
+          return;
+        }
+        if (row.kind === "course") {
+          sections[1]?.setAttribute("open", "open");
+          $("course-title").value = $("course-edit-course").value || row.course_title || "";
+          $("course-description").value = row.course_description || "";
+          const editedSubjectId = $("course-edit-subject").value;
+          const editedSubject = subjectsCache.find((s) => String(s.id) === String(editedSubjectId));
+          selectedSubjectId = editedSubjectId ? Number(editedSubjectId) : null;
+          selectedSubjectName = editedSubject?.name || "";
+          $("subject-existing-id").value = editedSubjectId || "";
+          $("subject-name").value = editedSubjectId ? "" : selectedSubjectName;
+          window.showToast("Course loaded into form.", "good");
+          return;
+        }
+        if (row.kind === "module") {
+          sections[2]?.setAttribute("open", "open");
+          if (row.course_id) $("module-course-select").value = String(row.course_id);
+          $("module-title").value = $("course-edit-module").value || row.module_title || "";
+          $("module-order-index").value = String(row.module_order_index ?? 0);
+          window.showToast("Module loaded into form.", "good");
+          return;
+        }
+        if (row.kind === "resource") {
+          sections[3]?.setAttribute("open", "open");
+          if (row.module_id) $("resource-module-select").value = String(row.module_id);
+          const parsedResource = parseResourceCell(row.resource);
+          $("resource-type").value = $("course-edit-resource-type").value || row.resource_type || parsedResource.type?.toLowerCase() || "note";
+          syncResourceFields();
+          $("resource-title").value = $("course-edit-resource").value || row.resource_title || parsedResource.title || "";
+          $("resource-content-text").value = row.resource_content_text || "";
+          $("resource-content-url").value = row.resource_content_url || "";
+          window.showToast("Resource loaded into form.", "good");
+        }
+      }
+
+      async function refreshTopTableFromCurrentSelection() {
+        await buildCourseDataTable();
+      }
+
+      async function refreshAfterCreate() {
+        await Promise.all([loadSubjects(), loadCourses()]);
+        await refreshTopTableFromCurrentSelection();
+      }
+
+      async function initTopTable() {
+        await refreshTopTableFromCurrentSelection();
       }
 
       function syncResourceFields() {
@@ -276,36 +677,71 @@
       }
 
       async function init() {
-        $("admin-course-status").textContent = "Loading dropdown data...";
         try {
           await Promise.all([loadSubjects(), loadCourses()]);
           syncResourceFields();
-          $("admin-course-status").textContent = "Ready.";
         } catch (e) {
-          $("admin-course-status").textContent = e.message || "Failed to load admin data.";
+          window.showToast(e.message || "Failed to load admin data.", "bad");
         }
       }
 
       $("resource-type").addEventListener("change", syncResourceFields);
       $("module-course-select").addEventListener("change", async (e) => loadModulesForCourse(Number(e.target.value)));
+      $("resource-module-select").addEventListener("change", async (e) => {
+        const moduleId = Number(e.target.value);
+        await loadResourcesForModule(moduleId);
+      });
+      $("course-data-table-body").addEventListener("click", (e) => {
+        const btn = e.target.closest(".edit-course-row-btn");
+        if (btn) {
+          e.stopPropagation();
+          openCourseEditModal(btn.dataset.rowId);
+          return;
+        }
+        const row = e.target.closest("tr.data-row");
+        if (!row) return;
+        const rowId = row.dataset.rowId;
+        expandedCourseRowId = expandedCourseRowId === rowId ? null : rowId;
+        buildCourseDataTable();
+      });
 
-      $("create-subject-btn").addEventListener("click", async () => {
+      $("create-subject-btn").addEventListener("click", async (e) => {
         setFieldError("subject-error", "");
+        const existingSubjectId = $("subject-existing-id").value;
         const subjectName = $("subject-name").value.trim();
+        if (existingSubjectId) {
+          preferredSubjectId = Number(existingSubjectId);
+          selectedSubjectId = Number(existingSubjectId);
+          const selectedSubject = subjectsCache.find((s) => String(s.id) === String(existingSubjectId));
+          selectedSubjectName = selectedSubject?.name || "";
+          setStatus("subject-result", `Using existing subject: ${selectedSubject?.name || existingSubjectId}.`, "good");
+          window.showToast("Existing subject selected.", "good");
+          document.querySelectorAll(".admin-accordion")[1]?.setAttribute("open", "open");
+          return;
+        }
         if (!subjectName) {
           setFieldError("subject-error", "Subject name is required.");
           return;
         }
-        await requireAuthOrThrow();
-        $("subject-result").textContent = "Creating subject...";
-        try {
-          const payload = await apiPost("/api/admin/subjects", { name: subjectName }, { auth: true });
-          $("subject-result").textContent = `Created (id: ${payload.data.subject_id}).`;
-          $("subject-name").value = "";
-          await loadSubjects();
-        } catch (e) {
-          $("subject-result").textContent = e.message || "Failed to create subject.";
-        }
+        await window.withButtonLoading(e.currentTarget, "Creating...", async () => {
+          await requireAuthOrThrow();
+          setStatus("subject-result", "Creating subject...");
+          try {
+            const payload = await apiPost("/api/admin/subjects", { name: subjectName }, { auth: true });
+            preferredSubjectId = payload.data.subject_id;
+            selectedSubjectId = payload.data.subject_id;
+            selectedSubjectName = subjectName;
+            setStatus("subject-result", `Created (id: ${payload.data.subject_id}).`, "good");
+            window.showToast("Subject created successfully.", "good");
+            $("subject-name").value = "";
+            $("subject-existing-id").value = "";
+            await refreshAfterCreate();
+            document.querySelectorAll(".admin-accordion")[1]?.setAttribute("open", "open");
+          } catch (err) {
+            setStatus("subject-result", err.message || "Failed to create subject.", "bad");
+            window.showToast(err.message || "Failed to create subject.", "bad");
+          }
+        });
       });
 
       $("create-course-form").addEventListener("submit", async (e) => {
@@ -315,21 +751,29 @@
           setFieldError("course-title-error", "Course title is required.");
           return;
         }
-        await requireAuthOrThrow();
-        $("course-result").textContent = "Creating course...";
-        try {
-          const payload = await apiPost("/api/admin/courses", {
-            title: $("course-title").value.trim(),
-            description: $("course-description").value.trim() || null,
-            subject_id: $("course-subject-id").value ? Number($("course-subject-id").value) : null,
-            subject_name: $("course-subject-name").value.trim() || null
-          }, { auth: true });
-          $("course-result").textContent = `Created (course id: ${payload.data.course_id}).`;
-          $("create-course-form").reset();
-          await loadCourses();
-        } catch (e2) {
-          $("course-result").textContent = e2.message || "Failed to create course.";
-        }
+        const submitBtn = e.currentTarget.querySelector("button[type='submit']");
+        await window.withButtonLoading(submitBtn, "Creating...", async () => {
+          await requireAuthOrThrow();
+          setStatus("course-result", "Creating course...");
+          try {
+            const payload = await apiPost("/api/admin/courses", {
+              title: $("course-title").value.trim(),
+              description: $("course-description").value.trim() || null,
+              subject_id: selectedSubjectId ? Number(selectedSubjectId) : null,
+              subject_name: selectedSubjectId ? null : (selectedSubjectName.trim() || null)
+            }, { auth: true });
+            preferredCourseId = payload.data.course_id;
+            preferredModuleId = null;
+            setStatus("course-result", `Created (course id: ${payload.data.course_id}).`, "good");
+            window.showToast("Course created successfully.", "good");
+            $("course-title").value = "";
+            $("course-description").value = "";
+            await refreshAfterCreate();
+          } catch (e2) {
+            setStatus("course-result", e2.message || "Failed to create course.", "bad");
+            window.showToast(e2.message || "Failed to create course.", "bad");
+          }
+        });
       });
 
       $("create-module-form").addEventListener("submit", async (e) => {
@@ -339,20 +783,28 @@
           setFieldError("module-title-error", "Module title is required.");
           return;
         }
-        await requireAuthOrThrow();
-        $("module-result").textContent = "Creating module...";
-        try {
-          const courseId = Number($("module-course-select").value);
-          const payload = await apiPost(`/api/admin/courses/${courseId}/modules`, {
-            title: $("module-title").value.trim(),
-            order_index: Number($("module-order-index").value)
-          }, { auth: true });
-          $("module-result").textContent = `Created (module id: ${payload.data.module_id}).`;
-          $("module-title").value = "";
-          await loadModulesForCourse(courseId);
-        } catch (e2) {
-          $("module-result").textContent = e2.message || "Failed to create module.";
-        }
+        const submitBtn = e.currentTarget.querySelector("button[type='submit']");
+        await window.withButtonLoading(submitBtn, "Creating...", async () => {
+          await requireAuthOrThrow();
+          setStatus("module-result", "Creating module...");
+          try {
+            const courseId = Number($("module-course-select").value);
+            const payload = await apiPost(`/api/admin/courses/${courseId}/modules`, {
+              title: $("module-title").value.trim(),
+              order_index: Number($("module-order-index").value)
+            }, { auth: true });
+            preferredCourseId = courseId;
+            preferredModuleId = payload.data.module_id;
+            setStatus("module-result", `Created (module id: ${payload.data.module_id}).`, "good");
+            window.showToast("Module created successfully.", "good");
+            $("module-title").value = "";
+            await refreshAfterCreate();
+            document.querySelectorAll(".admin-accordion")[3]?.setAttribute("open", "open");
+          } catch (e2) {
+            setStatus("module-result", e2.message || "Failed to create module.", "bad");
+            window.showToast(e2.message || "Failed to create module.", "bad");
+          }
+        });
       });
 
       $("create-resource-form").addEventListener("submit", async (e) => {
@@ -371,25 +823,79 @@
           setFieldError("resource-content-error", "Video URL is required.");
           return;
         }
-        await requireAuthOrThrow();
-        $("resource-result").textContent = "Creating resource...";
-        try {
-          const moduleId = Number($("resource-module-select").value);
-          const resourceType = $("resource-type").value;
-          const payloadBody = resourceType === "note"
-            ? { title: $("resource-title").value.trim(), resource_type: resourceType, content_text: $("resource-content-text").value.trim() }
-            : { title: $("resource-title").value.trim(), resource_type: resourceType, content_url: $("resource-content-url").value.trim() };
-          const payload = await apiPost(`/api/admin/modules/${moduleId}/resources`, payloadBody, { auth: true });
-          $("resource-result").textContent = `Created (resource id: ${payload.data.resource_id}).`;
-          $("resource-title").value = "";
-          $("resource-content-text").value = "";
-          $("resource-content-url").value = "";
-        } catch (e2) {
-          $("resource-result").textContent = e2.message || "Failed to create resource.";
+        if ($("resource-type").value === "video" && !isValidYouTubeUrl($("resource-content-url").value.trim())) {
+          setFieldError("resource-content-error", "Please enter a valid YouTube URL.");
+          return;
         }
+        const submitBtn = e.currentTarget.querySelector("button[type='submit']");
+        await window.withButtonLoading(submitBtn, "Creating...", async () => {
+          await requireAuthOrThrow();
+          setStatus("resource-result", "Creating resource...");
+          try {
+            const moduleId = Number($("resource-module-select").value);
+            const resourceType = $("resource-type").value;
+            const payloadBody = resourceType === "note"
+              ? { title: $("resource-title").value.trim(), resource_type: resourceType, content_text: $("resource-content-text").value.trim() }
+              : { title: $("resource-title").value.trim(), resource_type: resourceType, content_url: $("resource-content-url").value.trim() };
+            const payload = await apiPost(`/api/admin/modules/${moduleId}/resources`, payloadBody, { auth: true });
+            preferredModuleId = moduleId;
+            setStatus("resource-result", `Created (resource id: ${payload.data.resource_id}).`, "good");
+            window.showToast("Resource created successfully.", "good");
+            $("resource-title").value = "";
+            $("resource-content-text").value = "";
+            $("resource-content-url").value = "";
+            await refreshAfterCreate();
+          } catch (e2) {
+            setStatus("resource-result", e2.message || "Failed to create resource.", "bad");
+            window.showToast(e2.message || "Failed to create resource.", "bad");
+          }
+        });
       });
 
-      document.addEventListener("DOMContentLoaded", init);
+      document.addEventListener("DOMContentLoaded", async () => {
+        await init();
+        await initTopTable();
+      });
+      document.addEventListener("DOMContentLoaded", () => {
+        const workflowBtn = $("toggle-create-workflow-btn");
+        const workflowPanel = $("create-workflow-panel");
+        if (!workflowBtn || !workflowPanel) return;
+        workflowBtn.addEventListener("click", () => {
+          const isOpen = workflowPanel.style.display === "flex";
+          workflowPanel.style.display = isOpen ? "none" : "flex";
+          workflowBtn.textContent = isOpen ? "Create New Course Structure" : "Hide Create Workflow";
+        });
+      });
+      $("course-edit-close-btn").addEventListener("click", closeCourseEditModal);
+      $("course-edit-cancel-btn").addEventListener("click", closeCourseEditModal);
+      $("course-edit-modal").addEventListener("click", (e) => {
+        if (e.target.id === "course-edit-modal") closeCourseEditModal();
+      });
+      $("course-edit-apply-btn").addEventListener("click", () => {
+        if (!selectedCourseRowId) return;
+        handleCourseRowEdit(selectedCourseRowId);
+        closeCourseEditModal();
+      });
+      $("subject-name").addEventListener("input", (e) => {
+        const typed = e.target.value.trim();
+        if (!typed) {
+          selectedSubjectName = "";
+          return;
+        }
+        $("subject-existing-id").value = "";
+        selectedSubjectId = null;
+        selectedSubjectName = typed;
+      });
+      $("subject-existing-id").addEventListener("change", (e) => {
+        const value = e.target.value;
+        if (!value) {
+          selectedSubjectId = null;
+          return;
+        }
+        $("subject-name").value = "";
+        selectedSubjectId = Number(value);
+        selectedSubjectName = subjectsCache.find((s) => String(s.id) === value)?.name || "";
+      });
     </script>
   </body>
 </html>
