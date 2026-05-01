@@ -91,63 +91,127 @@
 
       <div class="card" style="padding:32px; border-radius:24px;">
         <div id="admin-course-status" class="muted" style="margin-bottom:24px; font-weight:600;">Loading...</div>
-        <div style="display:flex; flex-direction:column; gap:24px;">
-          <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">1) Subjects</h3>
-            <div style="display:flex; gap:12px; align-items:flex-end;">
-              <div style="flex:1;">
-                <label for="subject-name">Subject name</label>
-                <input id="subject-name" placeholder="e.g., Computer Science" style="background:white;" />
-              </div>
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <details class="admin-accordion" open>
+            <summary>1) Subjects</summary>
+            <p class="helper-text muted">Create subject first before creating a course.</p>
+            <label for="subject-name">Subject name</label>
+            <div class="inline-input-action">
+              <input id="subject-name" placeholder="e.g., Computer Science" style="background:white;" />
               <button class="btn" type="button" id="create-subject-btn">Create</button>
             </div>
+            <div id="subject-error" class="field-error"></div>
             <div class="muted" id="subject-result" style="margin-top:12px; font-size:14px;"></div>
-          </div>
+          </details>
 
-          <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">2) Courses</h3>
+          <details class="admin-accordion">
+            <summary>2) Courses</summary>
+            <p class="helper-text muted">Create a course under an existing subject or add a new subject inline.</p>
             <form id="create-course-form" style="display:flex; flex-direction:column; gap:16px;">
-              <div><label for="course-title">Course title</label><input id="course-title" required style="background:white;" /></div>
+              <div>
+                <label for="course-title">Course title</label>
+                <input id="course-title" required style="background:white;" />
+                <div id="course-title-error" class="field-error"></div>
+              </div>
               <div><label for="course-description">Description</label><textarea id="course-description" placeholder="Short course overview (optional)" style="background:white; min-height:80px;"></textarea></div>
               <div class="row">
                 <div><label for="course-subject-id">Subject</label><select id="course-subject-id" style="background:white;"><option value="">(optional)</option></select></div>
                 <div><label for="course-subject-name">Or new subject</label><input id="course-subject-name" placeholder="Leave blank if using dropdown" style="background:white;" /></div>
               </div>
-              <button class="btn outline" type="submit" style="background:white;">Create Course</button>
+              <div class="helper-text muted" style="margin-top:-6px;">Choose one path: select existing subject OR type a new subject.</div>
+              <button class="btn" type="submit">Create Course</button>
             </form>
             <div class="muted" id="course-result" style="margin-top:12px; font-size:14px;"></div>
-          </div>
+          </details>
 
-          <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">3) Modules</h3>
+          <details class="admin-accordion">
+            <summary>3) Modules</summary>
+            <p class="helper-text muted">Create modules after choosing an existing course.</p>
             <form id="create-module-form" style="display:flex; flex-direction:column; gap:16px;">
               <div class="row">
                 <div><label for="module-course-select">Choose course</label><select id="module-course-select" required style="background:white;"></select></div>
                 <div><label for="module-order-index">Order index</label><input id="module-order-index" type="number" min="0" value="0" style="background:white;" /></div>
               </div>
-              <div><label for="module-title">Module title</label><input id="module-title" required style="background:white;" /></div>
-              <button class="btn outline" type="submit" style="background:white;">Create Module</button>
+              <div>
+                <label for="module-title">Module title</label>
+                <input id="module-title" required style="background:white;" />
+                <div id="module-title-error" class="field-error"></div>
+              </div>
+              <button class="btn" type="submit">Create Module</button>
             </form>
             <div class="muted" id="module-result" style="margin-top:12px; font-size:14px;"></div>
-          </div>
+          </details>
 
-          <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">4) Resources</h3>
+          <details class="admin-accordion">
+            <summary>4) Resources</summary>
+            <p class="helper-text muted">Create resources only after a module is created and selected.</p>
             <form id="create-resource-form" style="display:flex; flex-direction:column; gap:16px;">
               <div class="row">
                 <div><label for="resource-module-select">Choose module</label><select id="resource-module-select" required style="background:white;"></select></div>
                 <div><label for="resource-type">Resource type</label><select id="resource-type" required style="background:white;"><option value="note">Note</option><option value="video">Video</option></select></div>
               </div>
-              <div><label for="resource-title">Resource title</label><input id="resource-title" required style="background:white;" /></div>
-              <div id="note-fields"><label for="resource-content-text">Note text</label><textarea id="resource-content-text" placeholder="Write a short description/notes text..." style="background:white; min-height:80px;"></textarea></div>
-              <div id="video-fields" style="display:none;"><label for="resource-content-url">YouTube link</label><input id="resource-content-url" placeholder="https://www.youtube.com/watch?v=..." style="background:white;" /></div>
-              <button class="btn outline" type="submit" style="background:white;">Create Resource</button>
+              <div>
+                <label for="resource-title">Resource title</label>
+                <input id="resource-title" required style="background:white;" />
+                <div id="resource-title-error" class="field-error"></div>
+              </div>
+              <div id="note-fields">
+                <label for="resource-content-text">Note text</label>
+                <textarea id="resource-content-text" placeholder="Write a short description/notes text..." style="background:white; min-height:80px;"></textarea>
+              </div>
+              <div id="video-fields" style="display:none;">
+                <label for="resource-content-url">YouTube link</label>
+                <input id="resource-content-url" placeholder="https://www.youtube.com/watch?v=..." style="background:white;" />
+              </div>
+              <div id="resource-content-error" class="field-error"></div>
+              <button class="btn" type="submit">Create Resource</button>
             </form>
             <div class="muted" id="resource-result" style="margin-top:12px; font-size:14px;"></div>
-          </div>
+          </details>
         </div>
       </div>
     </main>
+
+    <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
+        <div>
+          <strong style="font-size: 20px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em;">The Academic Curator</strong>
+          <p class="muted" style="margin-top: 16px; line-height: 1.6; font-size: 14px; max-width: 320px;">
+            Elevating the undergraduate experience through curated resources, advanced texts, and rigorous discourse.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Platform</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
+            <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
+            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Student</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/portal" style="color: var(--muted); font-size: 14px; text-decoration: none;">Dashboard</a>
+            <a href="/my-ebooks" style="color: var(--muted); font-size: 14px; text-decoration: none;">My Ebooks</a>
+            <a href="/cart" style="color: var(--muted); font-size: 14px; text-decoration: none;">Cart</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Legal</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Privacy Policy</a>
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1200px; margin: 80px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px;">
+        <span>&copy; 2026 The Academic Curator. All rights reserved.</span>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+        </div>
+      </div>
+    </footer>
 
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
@@ -157,6 +221,12 @@
 
       async function requireAuthOrThrow() {
         if (!getToken()) throw new Error("Please login first.");
+      }
+
+      function setFieldError(id, message) {
+        const el = $(id);
+        if (!el) return;
+        el.textContent = message || "";
       }
 
       async function loadSubjects() {
@@ -220,10 +290,16 @@
       $("module-course-select").addEventListener("change", async (e) => loadModulesForCourse(Number(e.target.value)));
 
       $("create-subject-btn").addEventListener("click", async () => {
+        setFieldError("subject-error", "");
+        const subjectName = $("subject-name").value.trim();
+        if (!subjectName) {
+          setFieldError("subject-error", "Subject name is required.");
+          return;
+        }
         await requireAuthOrThrow();
         $("subject-result").textContent = "Creating subject...";
         try {
-          const payload = await apiPost("/api/admin/subjects", { name: $("subject-name").value.trim() }, { auth: true });
+          const payload = await apiPost("/api/admin/subjects", { name: subjectName }, { auth: true });
           $("subject-result").textContent = `Created (id: ${payload.data.subject_id}).`;
           $("subject-name").value = "";
           await loadSubjects();
@@ -234,6 +310,11 @@
 
       $("create-course-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        setFieldError("course-title-error", "");
+        if (!$("course-title").value.trim()) {
+          setFieldError("course-title-error", "Course title is required.");
+          return;
+        }
         await requireAuthOrThrow();
         $("course-result").textContent = "Creating course...";
         try {
@@ -253,6 +334,11 @@
 
       $("create-module-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        setFieldError("module-title-error", "");
+        if (!$("module-title").value.trim()) {
+          setFieldError("module-title-error", "Module title is required.");
+          return;
+        }
         await requireAuthOrThrow();
         $("module-result").textContent = "Creating module...";
         try {
@@ -271,6 +357,20 @@
 
       $("create-resource-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        setFieldError("resource-title-error", "");
+        setFieldError("resource-content-error", "");
+        if (!$("resource-title").value.trim()) {
+          setFieldError("resource-title-error", "Resource title is required.");
+          return;
+        }
+        if ($("resource-type").value === "note" && !$("resource-content-text").value.trim()) {
+          setFieldError("resource-content-error", "Note text is required.");
+          return;
+        }
+        if ($("resource-type").value === "video" && !$("resource-content-url").value.trim()) {
+          setFieldError("resource-content-error", "Video URL is required.");
+          return;
+        }
         await requireAuthOrThrow();
         $("resource-result").textContent = "Creating resource...";
         try {

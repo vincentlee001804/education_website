@@ -92,7 +92,7 @@
       <div class="card" style="padding:32px; border-radius:24px;">
         <div style="display:flex; flex-direction:column; gap:24px;">
           <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">1) Create Book</h3>
+            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 1) Create Book</h3>
             <form id="create-book-form" style="display:flex; flex-direction:column; gap:16px;">
               <div><label for="book-title">Title</label><input id="book-title" required style="background:white;" /></div>
               <div><label for="book-author">Author (optional)</label><input id="book-author" style="background:white;" /></div>
@@ -105,31 +105,37 @@
                 <div><label for="book-price">Price</label><input id="book-price" type="number" min="0" step="0.01" value="10" required style="background:white;" /></div>
                 <div><label for="book-stock">Stock count</label><input id="book-stock" type="number" min="0" value="5" required style="background:white;" /></div>
               </div>
-              <button class="btn outline" type="submit" style="background:white;">Create Book</button>
+              <button class="btn" type="submit">Create Book</button>
             </form>
             <div class="muted" id="book-result" style="margin-top:12px; font-size:14px;"></div>
           </div>
 
           <div style="padding:24px; background:var(--bg0); border-radius:16px;">
-            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">2) Upload Assets</h3>
+            <h3 style="margin:0 0 16px; font-size:18px; color:var(--accent);">Step 2) Upload Assets</h3>
             <div style="margin-bottom:16px; padding:12px; background:white; border-radius:8px; border:1px solid var(--border); font-size:14px;">
               Current book id: <strong id="current-book-id" style="color:var(--accent);">-</strong>
             </div>
             <div style="display:flex; flex-direction:column; gap:16px;">
               <div>
                 <label for="book-image-file">Cover image (image/*)</label>
-                <div style="display:flex; gap:12px; align-items:center;">
+                <div class="inline-input-action">
                   <input id="book-image-file" type="file" accept="image/*" style="background:white; padding:8px;" />
-                  <button class="btn outline" type="button" id="upload-image-btn" style="background:white;">Upload</button>
+                  <button class="btn outline" type="button" id="upload-image-btn" style="background:white;" disabled>Upload</button>
                 </div>
+                <div id="image-file-name" class="upload-filename">No file selected.</div>
               </div>
               <div>
                 <label for="ebook-pdf-file">Ebook PDF (application/pdf)</label>
-                <div style="display:flex; gap:12px; align-items:center;">
+                <div class="inline-input-action">
                   <input id="ebook-pdf-file" type="file" accept="application/pdf" style="background:white; padding:8px;" />
-                  <button class="btn outline" type="button" id="upload-ebook-btn" style="background:white;">Upload</button>
+                  <button class="btn outline" type="button" id="upload-ebook-btn" style="background:white;" disabled>Upload</button>
                 </div>
+                <div id="ebook-file-name" class="upload-filename">No file selected.</div>
               </div>
+            </div>
+            <div class="upload-badges">
+              <span id="image-upload-badge" class="pill" style="display:none;">Cover uploaded</span>
+              <span id="ebook-upload-badge" class="pill" style="display:none;">PDF uploaded</span>
             </div>
             <div class="muted" id="upload-result" style="margin-top:12px; font-size:14px;"></div>
           </div>
@@ -137,12 +143,59 @@
       </div>
     </main>
 
+    <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
+        <div>
+          <strong style="font-size: 20px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em;">The Academic Curator</strong>
+          <p class="muted" style="margin-top: 16px; line-height: 1.6; font-size: 14px; max-width: 320px;">
+            Elevating the undergraduate experience through curated resources, advanced texts, and rigorous discourse.
+          </p>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Platform</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
+            <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
+            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Student</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="/portal" style="color: var(--muted); font-size: 14px; text-decoration: none;">Dashboard</a>
+            <a href="/my-ebooks" style="color: var(--muted); font-size: 14px; text-decoration: none;">My Ebooks</a>
+            <a href="/cart" style="color: var(--muted); font-size: 14px; text-decoration: none;">Cart</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.05em;">Legal</h4>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Privacy Policy</a>
+            <a href="#" style="color: var(--muted); font-size: 14px; text-decoration: none;">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 1200px; margin: 80px auto 0; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px;">
+        <span>&copy; 2026 The Academic Curator. All rights reserved.</span>
+        <div style="display: flex; gap: 16px;">
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+          <a href="#" style="color: var(--muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a>
+        </div>
+      </div>
+    </footer>
+
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
     <script>
       const $ = (id) => document.getElementById(id);
       const getToken = () => window.localStorage.getItem("access_token");
       let currentBookId = null;
+
+      function refreshUploadButtons() {
+        const disabled = !currentBookId;
+        $("upload-image-btn").disabled = disabled;
+        $("upload-ebook-btn").disabled = disabled;
+      }
 
       async function requireAuthOrThrow() {
         if (!getToken()) throw new Error("Please login first.");
@@ -177,6 +230,9 @@
           }, { auth: true });
           currentBookId = payload.data.book_id;
           $("current-book-id").textContent = String(currentBookId);
+          refreshUploadButtons();
+          $("image-upload-badge").style.display = "none";
+          $("ebook-upload-badge").style.display = "none";
           $("book-result").textContent = `Created book id: ${currentBookId}. Now upload cover and PDF.`;
           $("create-book-form").reset();
         } catch (e2) {
@@ -195,7 +251,9 @@
           fd.append("file", file);
           await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, fd, { auth: true });
           $("upload-result").textContent = "Image uploaded successfully.";
+          $("image-upload-badge").style.display = "inline-flex";
           $("book-image-file").value = "";
+          $("image-file-name").textContent = "No file selected.";
         } catch (e2) {
           $("upload-result").textContent = e2.message || "Image upload failed.";
         }
@@ -212,13 +270,28 @@
           fd.append("file", file);
           await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, fd, { auth: true });
           $("upload-result").textContent = "Ebook PDF uploaded successfully.";
+          $("ebook-upload-badge").style.display = "inline-flex";
           $("ebook-pdf-file").value = "";
+          $("ebook-file-name").textContent = "No file selected.";
         } catch (e2) {
           $("upload-result").textContent = e2.message || "PDF upload failed.";
         }
       });
 
-      document.addEventListener("DOMContentLoaded", loadCategories);
+      $("book-image-file").addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        $("image-file-name").textContent = file ? `Selected: ${file.name}` : "No file selected.";
+      });
+
+      $("ebook-pdf-file").addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        $("ebook-file-name").textContent = file ? `Selected: ${file.name}` : "No file selected.";
+      });
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        refreshUploadButtons();
+        await loadCategories();
+      });
     </script>
   </body>
 </html>

@@ -516,3 +516,82 @@ input:focus, textarea:focus, select:focus{
   color: #1D4ED8;
 }
 
+.admin-accordion {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg0);
+  padding: 20px 24px;
+}
+.admin-accordion summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.admin-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.admin-accordion summary::after {
+  content: "+";
+  float: right;
+  color: var(--muted);
+}
+.admin-accordion[open] summary::after {
+  content: "-";
+}
+
+.helper-text {
+  font-size: 13px;
+  margin: 8px 0 14px;
+}
+
+.field-error {
+  color: var(--bad);
+  font-size: 13px;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+.upload-filename {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.upload-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.inline-input-action {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.inline-input-action > input[type="text"],
+.inline-input-action > input[type="file"] {
+  flex: 1;
+}
+
+.inline-input-action > .btn {
+  align-self: center;
+  white-space: nowrap;
+}
+
+.loading-skeleton {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease infinite;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
