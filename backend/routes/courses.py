@@ -120,6 +120,17 @@ def complete_resource(resource_id: int):
     return jsonify({"data": {"resource_id": resource_id, "completed": True}, "error": None})
 
 
+@courses_bp.delete("/resources/<int:resource_id>/complete")
+@jwt_required()
+def uncomplete_resource(resource_id: int):
+    user_id = int(get_jwt_identity())
+    existing = ResourceCompletion.query.filter_by(user_id=user_id, resource_id=resource_id).first()
+    if existing:
+        db.session.delete(existing)
+        db.session.commit()
+    return jsonify({"data": {"resource_id": resource_id, "completed": False}, "error": None})
+
+
 @courses_bp.post("/resources/<int:resource_id>/save")
 @jwt_required()
 def save_resource(resource_id: int):

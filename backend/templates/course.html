@@ -216,23 +216,35 @@
       let savedIds = new Set();
       let completedIds = new Set();
 
-      async function loadAuthProgressMaps() {
+      async function refreshProgressUI() {
         try {
           const [savedPayload, completionPayload, progPayload] = await Promise.all([
-            apiGet("/api/saved"),
-            apiGet("/api/completions"),
-            apiGet(`/api/progress?course_id=${courseId}`),
+            apiGet("/api/saved", { auth: true }),
+            apiGet("/api/completions", { auth: true }),
+            apiGet(`/api/progress?course_id=${courseId}`, { auth: true }),
           ]);
           savedIds = new Set((savedPayload.data?.resources || []).map((r) => r.id));
           completedIds = new Set(completionPayload.data?.resource_ids || []);
-
           const p = progPayload.data?.progress_percent ?? 0;
           progressBox.style.display = "block";
           document.getElementById("progress-text").textContent = `${p}%`;
           document.getElementById("progress-bar-fill").style.width = `${p}%`;
           document.getElementById("progress-detail").textContent = `${progPayload.data.completed_count} completed of ${progPayload.data.total_resources} resources`;
         } catch (_) {
-          // Not logged in; hide progress UI.
+          progressBox.style.display = "none";
+        }
+      }
+
+      async function loadAuthProgressMaps() {
+        try {
+          const [savedPayload, completionPayload] = await Promise.all([
+            apiGet("/api/saved"),
+            apiGet("/api/completions"),
+          ]);
+          savedIds = new Set((savedPayload.data?.resources || []).map((r) => r.id));
+          completedIds = new Set(completionPayload.data?.resource_ids || []);
+          await refreshProgressUI();
+        } catch (_) {
           progressBox.style.display = "none";
         }
       }
@@ -325,65 +337,66 @@
             leftActions.style.gap = "12px";
 
             const completeBtn = document.createElement("button");
-            completeBtn.className = completed ? "btn outline" : "btn";
-            completeBtn.style.display = "flex";
-            completeBtn.style.alignItems = "center";
-            completeBtn.style.gap = "8px";
-            completeBtn.type = "button";
+            let isCompleted = completedIds.has(r.id);
+            let isSaved = savedIds.has(r.id);
+
+            const updateCompleteBtnUI = () => {
+              if (isCompleted) {
+                completeBtn.className = "btn outline";
+                completeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--good);"><polyline points="20 6 9 17 4 12"></polyline></svg> Completed`;
+                completeBtn.style.borderColor = "var(--good)";
+                completeBtn.style.color = "var(--good)";
+              } else {
+                completeBtn.className = "btn";
+                completeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg> Mark Complete`;
+                completeBtn.style.borderColor = "";
+                completeBtn.style.color = "";
+              }
+            };
+
+            updateCompleteBtnUI();
             
-            if (completed) {
-              completeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--good);"><polyline points="20 6 9 17 4 12"></polyline></svg> Completed`;
-              completeBtn.style.borderColor = "var(--good)";
-              completeBtn.style.color = "var(--good)";
-            } else {
-              completeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg> Mark Complete`;
-            }
-            
-            completeBtn.disabled = completed;
             completeBtn.addEventListener("click", async () => {
-              await apiPost(`/api/resources/${r.id}/complete`, {}, { auth: true });
-              completedIds.add(r.id);
-              location.reload();
+              try {
+                if (isCompleted) {
+                  await apiDelete(`/api/resources/${r.id}/complete`, { auth: true });
+                  isCompleted = false;
+                } else {
+                  await apiPost(`/api/resources/${r.id}/complete`, {}, { auth: true });
+                  isCompleted = true;
+                }
+                updateCompleteBtnUI();
+                refreshProgressUI();
+              } catch (err) {
+                alert(err.message || "Failed to update completion status. Are you logged in?");
+              }
             });
 
             const saveBtn = document.createElement("button");
-            saveBtn.className = saved ? "btn outline" : "btn";
-            saveBtn.style.display = "flex";
-            saveBtn.style.alignItems = "center";
-            saveBtn.style.gap = "8px";
-            saveBtn.type = "button";
-
-            const renderSaveButton = (isSaved) => {
-              saveBtn.className = isSaved ? "btn outline" : "btn";
+            const updateSaveBtnUI = () => {
               if (isSaved) {
-                saveBtn.style.background = "white";
-                saveBtn.style.color = "var(--accent)";
-                saveBtn.style.borderColor = "var(--border)";
+                saveBtn.className = "btn outline";
                 saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent)" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Saved`;
               } else {
-                // Strong contrast for unsaved state: dark button + light text.
-                saveBtn.style.background = "var(--accent)";
-                saveBtn.style.color = "white";
-                saveBtn.style.borderColor = "var(--accent)";
+                saveBtn.className = "btn secondary";
                 saveBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save`;
               }
             };
 
-            renderSaveButton(saved);
+            updateSaveBtnUI();
+            
             saveBtn.addEventListener("click", async () => {
-              const isSaved = savedIds.has(r.id);
-              saveBtn.disabled = true;
               try {
                 if (isSaved) {
                   await apiDelete(`/api/resources/${r.id}/save`, { auth: true });
-                  savedIds.delete(r.id);
+                  isSaved = false;
                 } else {
                   await apiPost(`/api/resources/${r.id}/save`, {}, { auth: true });
-                  savedIds.add(r.id);
+                  isSaved = true;
                 }
-                renderSaveButton(savedIds.has(r.id));
-              } finally {
-                saveBtn.disabled = false;
+                updateSaveBtnUI();
+              } catch (err) {
+                alert(err.message || "Failed to update save status. Are you logged in?");
               }
             });
 
