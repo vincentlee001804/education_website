@@ -138,6 +138,16 @@
       </div>
     </main>
 
+    <div id="book-modal" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 1000;">
+      <div style="background: white; width: min(920px, 100%); max-height: 90vh; overflow: auto; border-radius: 20px; box-shadow: 0 30px 80px -30px rgba(2, 6, 23, 0.5); border: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--border);">
+          <h2 style="margin: 0; color: var(--accent); font-size: 24px; font-weight: 800; letter-spacing: -0.01em;">Book Information</h2>
+          <button id="modal-close-btn" class="btn outline" type="button" style="padding: 8px 14px;">Close</button>
+        </div>
+        <div id="book-modal-content" style="padding: 24px;"></div>
+      </div>
+    </div>
+
     <footer style="background: white; border-top: 1px solid var(--border); padding: 80px 24px 40px; margin-top: 80px;">
       <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;">
         <div>
@@ -187,6 +197,67 @@
       const form = document.getElementById("search-form");
       const clearBtn = document.getElementById("clear-btn");
       const categorySelect = document.getElementById("category_id");
+      const modalEl = document.getElementById("book-modal");
+      const modalContentEl = document.getElementById("book-modal-content");
+      const modalCloseBtn = document.getElementById("modal-close-btn");
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function closeBookModal() {
+        modalEl.style.display = "none";
+        document.body.style.overflow = "";
+      }
+
+      async function openBookModal(bookId) {
+        modalEl.style.display = "flex";
+        document.body.style.overflow = "hidden";
+        modalContentEl.innerHTML = `<p class="muted" style="margin: 0;">Loading book details…</p>`;
+        try {
+          const payload = await apiGet(`/api/books/${bookId}`);
+          const b = payload.data;
+          const fallbackDescription = "Required reading material for the associated course curriculum.";
+          const coverBlock = b.image_url
+            ? `<img alt="${escapeHtml(b.title)} cover" src="${escapeHtml(b.image_url)}" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border);" />`
+            : `<div style="width: 100%; height: 320px; background: var(--bg0); border: 1px solid var(--border); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: var(--muted);">
+                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+               </div>`;
+
+          modalContentEl.innerHTML = `
+            <div style="display: grid; grid-template-columns: minmax(260px, 340px) 1fr; gap: 28px; align-items: start;">
+              <div>${coverBlock}</div>
+              <div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+                  <span style="background: #EFF6FF; color: #1D4ED8; font-size: 11px; font-weight: 800; padding: 6px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;">${escapeHtml(b.category || "Textbook")}</span>
+                  <span style="background: #F8FAFC; color: var(--accent); font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.08em;">${b.sold_out ? "Sold Out" : "Available"}</span>
+                </div>
+                <h3 style="margin: 0 0 8px; font-size: 32px; line-height: 1.2; color: var(--accent); letter-spacing: -0.02em;">${escapeHtml(b.title)}</h3>
+                <p style="margin: 0 0 18px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px;">By ${escapeHtml(b.author || "Unknown Author")}</p>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                  <div style="padding: 12px; border: 1px solid var(--border); border-radius: 12px;">
+                    <div class="muted" style="font-size: 12px;">Price</div>
+                    <div style="font-size: 24px; font-weight: 800; color: var(--accent);">$${Number(b.price).toFixed(2)}</div>
+                  </div>
+                  <div style="padding: 12px; border: 1px solid var(--border); border-radius: 12px;">
+                    <div class="muted" style="font-size: 12px;">Category</div>
+                    <div style="font-size: 16px; font-weight: 700; color: var(--accent);">${escapeHtml(b.category || "Textbook")}</div>
+                  </div>
+                </div>
+                <h4 style="margin: 0 0 8px; font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em;">Description</h4>
+                <p style="margin: 0; color: var(--text); line-height: 1.8; font-size: 15px;">${escapeHtml(b.description || fallbackDescription)}</p>
+              </div>
+            </div>
+          `;
+        } catch (e) {
+          modalContentEl.innerHTML = `<p style="margin: 0; color: #B91C1C;">Failed to load book details. Please try again.</p>`;
+        }
+      }
 
       async function loadCategories() {
         const payload = await apiGet("/api/books/categories", { auth: false });
@@ -231,6 +302,7 @@
           card.style.borderRadius = "20px";
           card.style.border = "none";
           card.style.boxShadow = "0 4px 20px -10px rgba(0,0,0,0.05)";
+          card.style.cursor = "pointer";
           
           const coverImg = b.image_url 
             ? `<img alt="${b.title} cover" loading="lazy" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" src="${b.image_url}" />`
@@ -258,11 +330,23 @@
             </p>
             ${actionBtn}
           `;
+
+          card.addEventListener("click", () => openBookModal(b.id));
+          card.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openBookModal(b.id);
+            }
+          });
+          card.tabIndex = 0;
+          card.setAttribute("role", "button");
+          card.setAttribute("aria-label", `View details for ${b.title}`);
           booksEl.appendChild(card);
         });
 
         booksEl.querySelectorAll("[data-add]").forEach((btn) => {
-          btn.addEventListener("click", async () => {
+          btn.addEventListener("click", async (event) => {
+            event.stopPropagation();
             const bookId = Number(btn.getAttribute("data-add"));
             try {
               await apiPost("/api/cart/items", { book_id: bookId, quantity: 1 });
@@ -273,6 +357,16 @@
           });
         });
       }
+
+      modalCloseBtn.addEventListener("click", closeBookModal);
+      modalEl.addEventListener("click", (event) => {
+        if (event.target === modalEl) closeBookModal();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalEl.style.display === "flex") {
+          closeBookModal();
+        }
+      });
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
