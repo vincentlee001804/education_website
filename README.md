@@ -33,7 +33,12 @@ Full-stack education website built with Flask (server-side templates) + JSON API
    ```powershell
    python -m backend.app
    ```
-5. Open: `http://localhost:5000`
+   The default port is **5000**. If that port is already in use, pick another (for example **5001**) before starting:
+   ```powershell
+   $env:PORT = "5001"
+   python -m backend.app
+   ```
+5. Open the URL shown in the terminal (e.g. `http://localhost:5000` or `http://localhost:5001` if you set `PORT`).
 
 ## Website pages (server routes)
 - `/` (home)

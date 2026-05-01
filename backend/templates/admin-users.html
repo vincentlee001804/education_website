@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel</title>
+    <title>Admin - Users</title>
     <link rel="stylesheet" href="/static/css/main.css" />
   </head>
   <body>
@@ -85,28 +85,26 @@
     </header>
 
     <main>
-      <div style="margin-bottom: 32px;">
-        <h1 style="margin: 0 0 12px; font-size: 48px; color: var(--accent); font-weight: 800; letter-spacing: -0.03em;">Admin Console</h1>
-        <p class="muted" style="margin: 0; font-size: 18px; max-width: 720px; line-height: 1.6;">Choose a management area to continue.</p>
-      </div>
+      <a href="/admin" class="muted" style="display:inline-block; margin-bottom:12px;">&larr; Back to Admin Home</a>
+      <h1 style="margin: 0 0 12px; font-size: 40px; color: var(--accent); font-weight: 800;">User Management</h1>
+      <p class="muted" style="margin: 0 0 28px;">View registered users and manage access roles.</p>
 
-      <section class="grid">
-        <a class="item" href="/admin/courses" style="display:block; padding:28px;">
-          <h3>Course Management</h3>
-          <p>Create subjects, courses, modules, and learning resources.</p>
-        </a>
-        <a class="item" href="/admin/bookstore" style="display:block; padding:28px;">
-          <h3>Bookstore Admin</h3>
-          <p>Create books, assign categories, and upload cover/PDF assets.</p>
-        </a>
-        <a class="item" href="/admin/users" style="display:block; padding:28px;">
-          <h3>User Management</h3>
-          <p>Review registered users and manage platform roles.</p>
-        </a>
-      </section>
+      <div class="card" style="padding:32px; border-radius:24px;">
+        <div class="muted" style="line-height:1.6; margin-bottom:24px;">
+          This section is ready for user listing and role-management actions.
+        </div>
+        <div id="users-status" class="muted">Loading users...</div>
+        <div id="users-list" class="list" style="margin-top: 0; gap: 12px;"></div>
+      </div>
     </main>
 
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const status = document.getElementById("users-status");
+        if (status) status.textContent = "User listing API is not yet connected on this page.";
+      });
+    </script>
   </body>
 </html>

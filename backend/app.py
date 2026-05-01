@@ -82,6 +82,18 @@ def create_app() -> Flask:
     def admin_page():
         return send_from_directory(app.template_folder, "admin.html")
 
+    @app.route("/admin/courses", methods=["GET"])
+    def admin_courses_page():
+        return send_from_directory(app.template_folder, "admin-courses.html")
+
+    @app.route("/admin/bookstore", methods=["GET"])
+    def admin_bookstore_page():
+        return send_from_directory(app.template_folder, "admin-bookstore.html")
+
+    @app.route("/admin/users", methods=["GET"])
+    def admin_users_page():
+        return send_from_directory(app.template_folder, "admin-users.html")
+
     # Helpful health check.
     @app.route("/health", methods=["GET"])
     def health():
