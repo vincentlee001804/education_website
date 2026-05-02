@@ -97,6 +97,7 @@ class ForumTopic(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(220), nullable=False)
+    category = db.Column(db.String(80), nullable=False, default="General")
     created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     is_locked = db.Column(db.Boolean, default=False, nullable=False)

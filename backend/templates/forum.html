@@ -95,6 +95,15 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               <input id="topic-search" type="text" placeholder="Search discussions..." style="width: 100%; border: none; background: transparent;" />
             </div>
+            <select id="topic-category-filter" style="width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--text); margin-bottom: 16px; background: white;">
+              <option value="all">All categories</option>
+              <option value="General">General</option>
+              <option value="Philosophy">Philosophy</option>
+              <option value="Technology">Technology</option>
+              <option value="Science">Science</option>
+              <option value="Arts">Arts</option>
+              <option value="Career">Career</option>
+            </select>
             
             <button class="btn outline" style="width: 100%; margin-bottom: 24px; border-radius: 12px; font-weight: 600; color: var(--accent); border-color: var(--border); display: none;" id="new-discussion-btn" data-auth="logged-in">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -118,7 +127,7 @@
           <!-- Thread Header -->
           <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border);">
             <div style="margin-bottom: 16px;">
-              <span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;" id="selected-category">PHILOSOPHY</span>
+              <span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;" id="selected-category">GENERAL</span>
             </div>
             <h1 style="margin: 0 0 16px; font-size: 36px; color: var(--accent); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2;" id="selected-title">Select a topic</h1>
             
@@ -167,16 +176,25 @@
           </div>
           <label for="topic-title">Title</label>
           <input id="topic-title" placeholder="e.g., The post-digital era implications on ethics" style="margin-bottom: 24px; font-size: 16px; padding: 16px;" />
+          <label for="topic-category">Category</label>
+          <select id="topic-category" style="margin-bottom: 24px; font-size: 16px; padding: 16px; width: 100%; border: 1px solid var(--border); border-radius: 10px;">
+            <option value="General">General</option>
+            <option value="Philosophy">Philosophy</option>
+            <option value="Technology">Technology</option>
+            <option value="Science">Science</option>
+            <option value="Arts">Arts</option>
+            <option value="Career">Career</option>
+          </select>
           <button class="btn" type="button" id="create-topic-btn" style="width: 100%; padding: 16px; font-size: 16px;">Post topic</button>
           <div id="topic-create-error" class="status bad" style="display:none; margin-top:12px;"></div>
         </div>
       </div>
 
-      <section style="margin-top: 60px; border-top: 1px solid var(--border); padding-top: 40px;">
+      <section id="moderation-section" style="margin-top: 60px; border-top: 1px solid var(--border); padding-top: 40px; display: none;">
         <div class="card" style="background: white;">
           <h2 style="margin-top:0; color: var(--accent);">Moderation panel</h2>
           <div class="muted" style="line-height:1.6; margin-bottom:24px;">
-            Only accessible to moderators/admins. Allows hide/delete/lock topics based on user reports.
+            Only accessible to admins. Allows hide/delete/lock topics based on user reports.
           </div>
           <div id="reports-status" class="muted">Loading moderation reports…</div>
           <div id="reports" class="list" style="margin-top:14px;"></div>
@@ -232,11 +250,16 @@
       const topicsStatusEl = document.getElementById("topics-status");
       const searchBtn = document.getElementById("topic-search");
       const topicSearchInput = document.getElementById("topic-search");
+      const topicCategoryFilter = document.getElementById("topic-category-filter");
       const newDiscussionBtn = document.getElementById("new-discussion-btn");
       const createTopicModal = document.getElementById("create-topic-section");
       const closeModalBtn = document.getElementById("close-modal-btn");
+      const selectedCategoryEl = document.getElementById("selected-category");
+      const topicCategoryInput = document.getElementById("topic-category");
+      const moderationSectionEl = document.getElementById("moderation-section");
 
       let selectedTopicId = null;
+      let selectedCategory = "all";
 
       // Modal logic
       newDiscussionBtn.addEventListener("click", () => {
@@ -251,12 +274,39 @@
 
       function moneyEscape(s) { return String(s || ""); }
 
-      async function loadTopics(search = "") {
+      function normalizeCategory(category) {
+        return (category || "General").trim() || "General";
+      }
+
+      function setActiveTopicLine(topicId) {
+        document.querySelectorAll('#topics .line').forEach((el) => {
+          const isActive = Number(el.dataset.topicId) === Number(topicId);
+          el.style.background = isActive ? "var(--bg0)" : "transparent";
+          el.onmouseout = isActive ? null : (() => (el.style.background = "transparent"));
+        });
+      }
+
+      function resetTopicDetail(category = "all") {
+        selectedTopicId = null;
+        document.getElementById("selected-title").textContent = "Select a topic";
+        selectedCategoryEl.textContent = (category === "all" ? "GENERAL" : normalizeCategory(category).toUpperCase());
+        document.getElementById("selected-meta").textContent = "START A NEW DISCUSSION";
+        document.getElementById("selected-author").textContent = "No active topic";
+        document.getElementById("selected-author-img").src = "https://ui-avatars.com/api/?name=Topic&background=CBD5E1&color=334155";
+        document.getElementById("selected-author-img").alt = "No active topic";
+        document.getElementById("posts").innerHTML = "";
+        document.getElementById("posts-status").textContent = category === "all"
+          ? "Select a topic from the sidebar to view the discussion."
+          : `No topics found in ${normalizeCategory(category)}.`;
+      }
+
+      async function loadTopics(search = "", category = "all") {
         topicsEl.innerHTML = "";
         topicsStatusEl.textContent = "Loading…";
         try {
           const qs = new URLSearchParams();
           if (search) qs.set("search", search);
+          if (category && category !== "all") qs.set("category", category);
           const payload = await apiGet(`/api/forum/topics${qs.toString() ? "?" + qs.toString() : ""}`, { auth: false });
           const topics = payload.data || [];
 
@@ -265,6 +315,7 @@
           topics.forEach((t) => {
             const line = document.createElement("div");
             line.className = "line";
+            line.dataset.topicId = String(t.id);
             line.style.cursor = "pointer";
             line.style.border = "none";
             line.style.background = "transparent";
@@ -278,7 +329,7 @@
 
             line.innerHTML = `
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 10px; font-weight: 800; color: #D4A017; text-transform: uppercase; letter-spacing: 0.1em;">PHILOSOPHY</span>
+                <span style="font-size: 10px; font-weight: 800; color: #D4A017; text-transform: uppercase; letter-spacing: 0.1em;">${normalizeCategory(t.category).toUpperCase()}</span>
                 <span class="muted" style="font-size: 12px;">${new Date(t.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
               </div>
               <div style="font-weight: 800; font-size: 16px; color: var(--accent); line-height: 1.4; margin-bottom: 12px;">${t.title}</div>
@@ -290,20 +341,22 @@
               </div>
             `;
             line.addEventListener("click", () => {
-              // Reset all active states
-              document.querySelectorAll('#topics .line').forEach(el => {
-                el.style.background = "transparent";
-                el.onmouseout = () => el.style.background = "transparent";
-              });
-              // Set active state
-              line.style.background = "var(--bg0)";
-              line.onmouseout = null; // keep background when mouse leaves
-              
               selectedTopicId = t.id;
+              setActiveTopicLine(t.id);
               loadTopic(t.id);
             });
             topicsEl.appendChild(line);
           });
+
+          if (!topics.length) {
+            resetTopicDetail(category);
+            return;
+          }
+
+          const activeTopic = topics.find((t) => Number(t.id) === Number(selectedTopicId)) || topics[0];
+          selectedTopicId = activeTopic.id;
+          setActiveTopicLine(activeTopic.id);
+          await loadTopic(activeTopic.id);
         } catch (e) {
           topicsStatusEl.textContent = e.message || "Failed to load topics";
         }
@@ -321,6 +374,10 @@
           const posts = payload.data.posts || [];
 
           document.getElementById("selected-title").textContent = topic.title;
+          selectedCategoryEl.textContent = normalizeCategory(topic.category).toUpperCase();
+          document.getElementById("selected-author").textContent = "Unknown Scholar";
+          document.getElementById("selected-author-img").src = "https://ui-avatars.com/api/?name=Author&background=002B5B&color=fff";
+          document.getElementById("selected-author-img").alt = "Author";
           document.getElementById("selected-meta").textContent = `STARTED ${new Date(topic.created_at).toLocaleDateString()}`;
 
           const postsEl = document.getElementById("posts");
@@ -383,19 +440,25 @@
       topicSearchInput.addEventListener("input", () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-          loadTopics(topicSearchInput.value.trim());
+          loadTopics(topicSearchInput.value.trim(), selectedCategory);
         }, 300);
+      });
+      topicCategoryFilter.addEventListener("change", () => {
+        selectedCategory = topicCategoryFilter.value;
+        loadTopics(topicSearchInput.value.trim(), selectedCategory);
       });
 
       document.getElementById("create-topic-btn").addEventListener("click", async () => {
         const title = document.getElementById("topic-title").value.trim();
+        const category = normalizeCategory(topicCategoryInput.value);
         const errEl = document.getElementById("topic-create-error");
         errEl.style.display = "none";
         try {
-          await apiPost("/api/forum/topics", { title }, { auth: true });
+          await apiPost("/api/forum/topics", { title, category }, { auth: true });
           document.getElementById("topic-title").value = "";
+          topicCategoryInput.value = "General";
           createTopicModal.style.display = "none";
-          loadTopics(topicSearchInput.value.trim());
+          loadTopics(topicSearchInput.value.trim(), selectedCategory);
         } catch (e) {
           errEl.style.display = "block";
           if (e.message.includes("401")) {
@@ -461,7 +524,7 @@
                 try {
                   await apiPost(`/api/mod/reports/${rid}/action`, { action: act }, { auth: true });
                   await loadReports();
-                  await loadTopics(topicSearchInput.value.trim());
+                  await loadTopics(topicSearchInput.value.trim(), selectedCategory);
                   if (selectedTopicId) await loadTopic(selectedTopicId);
                 } catch (e) {
                   alert(e.message || "Action failed");
@@ -471,14 +534,30 @@
             reportsEl.appendChild(line);
           });
         } catch (e) {
-          // If user isn't a moderator/admin, hide the panel.
+          // If reports fail to load, show fallback text in panel.
           reportsStatusEl.textContent = "Moderation panel requires moderator/admin.";
         }
       }
 
+      async function initModerationPanel() {
+        if (!moderationSectionEl) return;
+        moderationSectionEl.style.display = "none";
+        try {
+          const token = typeof readToken === "function" ? readToken() : null;
+          if (!token) return;
+          const payload = await apiGet("/api/auth/me", { auth: true });
+          const roles = payload?.data?.roles || [];
+          const isAdmin = roles.includes("admin");
+          moderationSectionEl.style.display = isAdmin ? "block" : "none";
+          if (isAdmin) await loadReports();
+        } catch (_) {
+          moderationSectionEl.style.display = "none";
+        }
+      }
+
       (async () => {
-        await loadTopics("");
-        await loadReports();
+        await loadTopics("", selectedCategory);
+        await initModerationPanel();
       })();
     </script>
   </body>

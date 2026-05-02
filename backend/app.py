@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, send_from_directory
 from flask_migrate import Migrate
+from sqlalchemy import inspect, text
 
 from .config import Config
 from .extensions import db, jwt
@@ -103,6 +104,13 @@ def create_app() -> Flask:
         # For early development we create tables automatically.
         # For production / grading you can switch to migrations.
         db.create_all()
+        inspector = inspect(db.engine)
+        topic_columns = {col["name"] for col in inspector.get_columns("forum_topics")}
+        if "category" not in topic_columns:
+            db.session.execute(
+                text("ALTER TABLE forum_topics ADD COLUMN category VARCHAR(80) NOT NULL DEFAULT 'General'")
+            )
+            db.session.commit()
 
     return app
 
