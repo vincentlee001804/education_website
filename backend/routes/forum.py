@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
 from ..extensions import db
-from ..models import ForumTopic, ForumPost, ForumReport
+from ..models import ForumTopic, ForumPost, ForumReport, User
 
 
 forum_bp = Blueprint("forum", __name__)
@@ -40,11 +40,15 @@ def _require_roles(allowed):
 
 
 def _topic_to_dict(t: ForumTopic):
+    user = User.query.get(t.created_by)
+    display_name = (user.display_name or "").strip() if user else ""
+    fallback_name = (user.email.split("@")[0] if user and user.email else f"User {t.created_by}")
     return {
         "id": t.id,
         "title": t.title,
         "category": t.category or "General",
         "created_by": t.created_by,
+        "created_by_display": display_name or fallback_name,
         "created_at": t.created_at.isoformat(),
         "is_locked": t.is_locked,
         "status": t.status,
@@ -52,11 +56,15 @@ def _topic_to_dict(t: ForumTopic):
 
 
 def _post_to_dict(p: ForumPost):
+    user = User.query.get(p.created_by)
+    display_name = (user.display_name or "").strip() if user else ""
+    fallback_name = (user.email.split("@")[0] if user and user.email else f"User {p.created_by}")
     return {
         "id": p.id,
         "topic_id": p.topic_id,
         "content": p.content,
         "created_by": p.created_by,
+        "created_by_display": display_name or fallback_name,
         "created_at": p.created_at.isoformat(),
         "status": p.status,
     }
