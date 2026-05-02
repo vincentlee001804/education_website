@@ -28,6 +28,8 @@
             Sign in to save resources and access your ebooks.
           </p>
         </div>
+
+        <div class="status" id="info-box" style="display:none; margin-bottom: 24px;"></div>
         
         <div class="status bad" id="error-box" style="display:none; margin-bottom: 24px;"></div>
         
@@ -96,6 +98,16 @@
     <script>
       const form = document.getElementById("login-form");
       const errorBox = document.getElementById("error-box");
+      const infoBox = document.getElementById("info-box");
+      const qs = new URLSearchParams(window.location.search);
+      const reason = qs.get("reason");
+      const nextPath = qs.get("next");
+
+      if (reason === "course_detail") {
+        infoBox.style.display = "block";
+        infoBox.textContent = "Please log in to view course details.";
+      }
+
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errorBox.style.display = "none";
@@ -104,6 +116,10 @@
           const password = document.getElementById("password").value;
           const payload = await apiPost("/api/auth/login", { email, password }, { auth: false });
           window.localStorage.setItem("access_token", payload.data.access_token);
+          if (nextPath && nextPath.startsWith("/")) {
+            window.location.href = nextPath;
+            return;
+          }
           window.location.href = "/";
         } catch (err) {
           errorBox.style.display = "block";

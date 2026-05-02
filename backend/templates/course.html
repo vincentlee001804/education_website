@@ -213,9 +213,47 @@
       const titleEl = document.getElementById("course-title");
       const descEl = document.getElementById("course-desc");
       const progressBox = document.getElementById("progress-box");
+      const savedTipEl = document.getElementById("saved-tip");
 
       let savedIds = new Set();
       let completedIds = new Set();
+
+      async function ensureCourseDetailAccess() {
+        const token = typeof readToken === "function" ? readToken() : null;
+        if (!token) return false;
+        try {
+          await apiGet("/api/auth/me", { auth: true });
+          return true;
+        } catch (_) {
+          try {
+            window.localStorage.removeItem("access_token");
+          } catch (_) {}
+          return false;
+        }
+      }
+
+      function renderLoginPrompt() {
+        const nextPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        const next = encodeURIComponent(nextPath);
+
+        titleEl.textContent = "Login required";
+        descEl.textContent = "Please log in or register to view this course detail and start learning resources.";
+        progressBox.style.display = "none";
+        if (savedTipEl) savedTipEl.textContent = "Sign in to view modules, track progress, and save resources.";
+
+        modulesEl.innerHTML = `
+          <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; text-align: center;">
+            <h3 style="margin: 0 0 10px; font-size: 28px; color: var(--accent);">View Course Detail</h3>
+            <p class="muted" style="margin: 0 0 24px; font-size: 16px; line-height: 1.6;">
+              You need an account to access the course page.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <a href="/login?reason=course_detail&next=${next}" class="btn" style="padding: 10px 22px;">Login</a>
+              <a href="/register" class="btn outline" style="padding: 10px 22px;">Register</a>
+            </div>
+          </div>
+        `;
+      }
 
       async function refreshProgressUI() {
         try {
@@ -447,6 +485,11 @@
       }
 
       (async () => {
+        const canAccess = await ensureCourseDetailAccess();
+        if (!canAccess) {
+          renderLoginPrompt();
+          return;
+        }
         try {
           await loadCourseBasics();
         } catch (_) {
