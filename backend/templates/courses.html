@@ -87,12 +87,8 @@
         <aside class="sidebar">
           <h4 style="font-size: 12px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px;">Departments</h4>
           <div class="card" style="padding: 20px;">
-            <div class="sidebar-nav">
-              <a href="#" class="active">All Departments</a>
-              <a href="#">Computer Science</a>
-              <a href="#">Digital Arts</a>
-              <a href="#">Philosophy</a>
-              <a href="#">Physics</a>
+            <div class="sidebar-nav" id="subject-nav">
+              <a href="?" class="active">All Departments</a>
             </div>
           </div>
         </aside>
@@ -163,6 +159,25 @@
     <script>
       const statusEl = document.getElementById("status");
       const coursesEl = document.getElementById("courses");
+      let subjectMap = {};
+
+      async function loadSubjects() {
+        try {
+          const payload = await apiGet("/api/subjects", { auth: false });
+          const subjects = payload.data || [];
+          const currentUrl = new URL(window.location.href);
+          const activeSubjectId = currentUrl.searchParams.get("subject_id");
+
+          let html = `<a href="?" class="${!activeSubjectId ? 'active' : ''}">All Departments</a>`;
+          subjects.forEach(s => {
+            subjectMap[s.id] = s.name;
+            const isActive = activeSubjectId === String(s.id);
+            html += `<a href="?subject_id=${s.id}" class="${isActive ? 'active' : ''}">${s.name}</a>`;
+          });
+          document.getElementById("subject-nav").innerHTML = html;
+        } catch (_) {
+        }
+      }
 
       async function loadCompletedResourceIds() {
         try {
@@ -200,9 +215,13 @@
       }
 
       (async () => {
+        await loadSubjects();
         coursesEl.innerHTML = "";
         try {
-          const payload = await apiGet("/api/courses", { auth: false });
+          const currentUrl = new URL(window.location.href);
+          const activeSubjectId = currentUrl.searchParams.get("subject_id");
+          const qs = activeSubjectId ? `?subject_id=${activeSubjectId}` : "";
+          const payload = await apiGet("/api/courses" + qs, { auth: false });
           const courses = payload.data || [];
           const completedIds = await loadCompletedResourceIds();
           const progressByCourseId = {};
@@ -225,7 +244,11 @@
             el.style.border = "none";
             el.style.boxShadow = "0 10px 30px -10px rgba(0,0,0,0.08)";
             
-            const category = c.subject_id ? `Subject ${c.subject_id}` : "Uncategorized";
+            const categoryName = c.subject_id && subjectMap[c.subject_id] ? subjectMap[c.subject_id] : (c.subject_id ? `Subject ${c.subject_id}` : "Uncategorized");
+            const categoryPill = c.subject_id 
+              ? `<a href="?subject_id=${c.subject_id}" style="text-decoration: none;"><span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;">${categoryName}</span></a>`
+              : `<span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">${categoryName}</span>`;
+
             const p = progressByCourseId[c.id] || { completed: 0, total: 0, percent: 0 };
             const progressDetail = completedIds
               ? `${p.completed} completed of ${p.total}`
@@ -233,7 +256,7 @@
             
             el.innerHTML = `
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">${category}</span>
+                ${categoryPill}
                 <span style="font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">4 CREDITS</span>
               </div>
               <h3 style="font-size: 24px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; color: var(--accent);">${c.title}</h3>

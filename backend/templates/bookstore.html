@@ -108,8 +108,8 @@
               <div style="margin-bottom: 24px;">
                 <label>Price Range</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <input id="min_price" type="number" min="0" step="0.01" placeholder="Min $" style="background: white;" />
-                  <input id="max_price" type="number" min="0" step="0.01" placeholder="Max $" style="background: white;" />
+                  <input id="min_price" type="number" min="0" step="0.01" placeholder="Min RM" style="background: white;" />
+                  <input id="max_price" type="number" min="0" step="0.01" placeholder="Max RM" style="background: white;" />
                 </div>
               </div>
               
@@ -319,7 +319,7 @@
             ${coverImg}
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
               <span style="background: #EFF6FF; color: #1D4ED8; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">${b.category_name || "Textbook"}</span>
-              <span style="font-weight: 800; color: var(--accent); font-size: 18px;">$${Number(b.price).toFixed(2)}</span>
+              <span style="font-weight: 800; color: var(--accent); font-size: 18px;">RM ${Number(b.price).toFixed(2)}</span>
             </div>
             
             <h3 style="font-size: 20px; font-weight: 800; line-height: 1.3; margin-bottom: 8px; color: var(--accent);">${b.title}</h3>
