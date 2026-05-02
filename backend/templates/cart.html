@@ -5,6 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Your Cart</title>
     <link rel="stylesheet" href="/static/css/main.css" />
+    <style>
+      .cart-line {
+        background: var(--bg0);
+        border: none;
+        padding: 24px;
+        border-radius: 16px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .cart-line-aside {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+
+      .cart-columns {
+        align-items: stretch !important;
+      }
+
+      .cart-panel {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cart-item-main {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex: 1;
+      }
+
+      .cart-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      /* Shopee-style quantity stepper */
+      .qty-stepper {
+        height: 40px;
+        min-width: 118px;
+        display: inline-flex;
+        align-items: stretch;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: border-color 120ms ease, box-shadow 120ms ease;
+      }
+
+      .qty-stepper:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(0, 43, 91, 0.12);
+      }
+
+      .qty-step-btn {
+        width: 40px;
+        flex-shrink: 0;
+        border: none;
+        background: var(--bg0);
+        color: var(--accent);
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+      }
+
+      .qty-step-btn:hover:not(:disabled) {
+        background: #e8eef5;
+      }
+
+      .qty-step-btn:disabled {
+        opacity: 0.38;
+        cursor: not-allowed;
+      }
+
+      .qty-value {
+        flex: 1;
+        min-width: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--accent);
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        user-select: none;
+      }
+
+      .cart-action-btn {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      /* Flat controls: global .btn adds drop shadow and hover lift */
+      .btn.cart-action-btn,
+      .btn.cart-action-btn:hover,
+      .btn.cart-action-btn:active {
+        box-shadow: none;
+        transform: none;
+      }
+
+      .btn.cart-action-btn:focus {
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+
+      .cart-remove-btn {
+        min-width: 102px;
+        color: #fff;
+        border-color: var(--bad);
+        background: var(--bad);
+      }
+
+      .cart-remove-btn:hover {
+        filter: brightness(0.95);
+      }
+
+      .cart-line-total {
+        font-weight: 800;
+        font-size: 24px;
+        color: var(--accent);
+        white-space: nowrap;
+      }
+
+      .stock-note {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 900px) {
+        .cart-line {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 14px;
+        }
+
+        .cart-item-main {
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .cart-line-aside {
+          width: 100%;
+          flex-direction: row;
+          justify-content: flex-end;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px 20px;
+        }
+
+        .cart-line-total {
+          font-size: 22px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .cart-item-main {
+          flex-direction: column;
+        }
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -93,8 +274,8 @@
         <h1 style="margin: 0 0 16px; font-size: 48px; color: var(--accent); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;">Your Cart</h1>
       </div>
 
-      <div class="two-col" style="grid-template-columns: 1fr 360px; gap: 40px; align-items: start;">
-        <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+      <div class="two-col cart-columns" style="grid-template-columns: 1fr 360px; gap: 40px; align-items: stretch;">
+        <div class="card cart-panel" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
           <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Cart Items</h2>
           <div id="cart-status" class="muted">Loading…</div>
           <div id="items" class="list" style="margin-top:0; gap: 16px;"></div>
@@ -106,8 +287,8 @@
           </div>
         </div>
 
-        <aside class="sidebar" style="position: sticky; top: 100px;">
-          <div class="card" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
+        <aside class="sidebar" style="position: sticky; top: 100px; align-self: stretch;">
+          <div class="card cart-panel" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
             <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Order Summary</h2>
             <div class="muted" style="line-height: 1.6; font-size: 14px; margin-bottom: 24px;">
               This is a simulated checkout. Once you purchase, your ebook becomes available for protected PDF download.
@@ -120,15 +301,15 @@
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span style="font-weight: 600; color: var(--muted);">Subtotal</span>
-                <span id="subtotal-val" style="font-weight: 600; color: var(--text);">$0.00</span>
+                <span id="subtotal-val" style="font-weight: 600; color: var(--text);">RM 0.00</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <span style="font-weight: 600; color: var(--muted);">Tax</span>
-                <span style="font-weight: 600; color: var(--text);">$0.00</span>
+                <span style="font-weight: 600; color: var(--text);">RM 0.00</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border);">
                 <span style="font-weight: 800; color: var(--accent); font-size: 18px;">Total</span>
-                <span id="total-box" style="font-weight: 800; color: var(--accent); font-size: 24px;">$0.00</span>
+                <span id="total-box" style="font-weight: 800; color: var(--accent); font-size: 24px;">RM 0.00</span>
               </div>
             </div>
 
@@ -136,8 +317,8 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               Secure Checkout
             </button>
-            <button class="btn outline" type="button" id="clear-cart-btn" style="width: 100%; padding: 12px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; color: var(--bad); border-color: var(--border);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <button class="btn outline" type="button" id="clear-cart-btn" style="width: 100%; padding: 16px; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; color: var(--bad); border-color: var(--border);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               Clear Cart
             </button>
             <div id="checkout-error" class="status bad" style="display:none; margin-top:16px;"></div>
@@ -199,7 +380,114 @@
 
       function money(x) {
         const n = Number(x || 0);
-        return `$${n.toFixed(2)}`;
+        return `RM ${n.toFixed(2)}`;
+      }
+
+      function renderEmptyCartUI() {
+        statusEl.textContent = "Your cart is empty. Ready to expand your library?";
+        itemsEl.innerHTML = `
+              <div style="padding: 40px; text-align: center; background: white; border-radius: 16px; border: 1px dashed var(--border);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <div style="font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 8px;">No items here yet.</div>
+                <div class="muted" style="margin-bottom: 24px;">Explore our catalog to find your next great read.</div>
+                <a href="/bookstore" class="btn">Browse Bookstore</a>
+              </div>
+            `;
+        checkoutBtn.disabled = true;
+        document.getElementById("clear-cart-btn").style.display = "none";
+      }
+
+      function appendCartLine(it) {
+        const maxStock = Math.max(0, Number(it.stock_count || 0));
+        const clampedQty = Math.max(1, Math.min(Number(it.quantity || 1), Math.max(1, maxStock)));
+        const line = document.createElement("div");
+        line.className = "line cart-line";
+        line.setAttribute("data-cart-item-id", String(it.id));
+
+        const coverHtml = it.image_url
+          ? `<img alt="${it.title} cover" loading="lazy" src="${it.image_url}" style="width: 80px; height: 100px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />`
+          : `<div style="width: 80px; height: 100px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: var(--muted);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>`;
+
+        line.innerHTML = `
+              <div class="cart-item-main">
+                ${coverHtml}
+                <div style="flex: 1;">
+                  <div style="font-weight: 800; font-size: 18px; color: var(--accent); margin-bottom: 8px;">${it.title}</div>
+                  <div class="muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 16px;">${it.category || "Textbook"} • ${money(it.price)} each</div>
+                  <div class="cart-controls">
+                    <div class="qty-stepper" data-item-id="${it.id}" data-max-stock="${maxStock}" role="group" aria-label="Quantity for ${it.title}">
+                      <button type="button" class="qty-step-btn" data-qty-dec="${it.id}" aria-label="Decrease quantity" ${clampedQty <= 1 ? "disabled" : ""}>−</button>
+                      <span class="qty-value" data-qty-display="${it.id}">${clampedQty}</span>
+                      <button type="button" class="qty-step-btn" data-qty-inc="${it.id}" aria-label="Increase quantity" ${clampedQty >= Math.max(1, maxStock) ? "disabled" : ""}>+</button>
+                    </div>
+                  </div>
+                  <div class="muted stock-note" data-stock-left="${it.id}">Stock: ${Math.max(0, maxStock - clampedQty)} left</div>
+                </div>
+              </div>
+              <div class="cart-line-aside">
+                <div class="cart-line-total">${money(it.line_total)}</div>
+                <button class="btn cart-action-btn cart-remove-btn" type="button" data-delete="${it.id}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Remove
+                </button>
+              </div>
+            `;
+        itemsEl.appendChild(line);
+      }
+
+      async function applyCartPayloadInPlace(cart) {
+        const items = cart.items || [];
+        const total = cart.total || 0;
+        document.getElementById("subtotal-val").textContent = money(total);
+        totalBox.textContent = money(total);
+
+        if (!items.length) {
+          renderEmptyCartUI();
+          return;
+        }
+
+        statusEl.textContent = "";
+        checkoutBtn.disabled = false;
+        document.getElementById("clear-cart-btn").style.display = "flex";
+
+        const ids = new Set(items.map((i) => i.id));
+        itemsEl.querySelectorAll(".cart-line[data-cart-item-id]").forEach((row) => {
+          const id = Number(row.getAttribute("data-cart-item-id"));
+          if (!ids.has(id)) row.remove();
+        });
+
+        for (const it of items) {
+          const row = itemsEl.querySelector(`.cart-line[data-cart-item-id="${it.id}"]`);
+          if (!row) {
+            await loadCart();
+            return;
+          }
+          const maxStock = Math.max(0, Number(it.stock_count || 0));
+          const clampedQty = Math.max(1, Math.min(Number(it.quantity || 1), Math.max(1, maxStock)));
+          const stepper = row.querySelector(".qty-stepper");
+          if (stepper) stepper.setAttribute("data-max-stock", String(maxStock));
+          const display = row.querySelector(`[data-qty-display="${it.id}"]`);
+          if (display) display.textContent = String(clampedQty);
+          const totalEl = row.querySelector(".cart-line-total");
+          if (totalEl) totalEl.textContent = money(it.line_total);
+          const stockEl = row.querySelector(`[data-stock-left="${it.id}"]`);
+          if (stockEl) stockEl.textContent = `Stock: ${Math.max(0, maxStock - clampedQty)} left`;
+          const dec = row.querySelector(`[data-qty-dec="${it.id}"]`);
+          const inc = row.querySelector(`[data-qty-inc="${it.id}"]`);
+          if (dec) dec.disabled = clampedQty <= 1;
+          if (inc) inc.disabled = clampedQty >= Math.max(1, maxStock);
+        }
+      }
+
+      async function refreshCartInPlace() {
+        try {
+          const payload = await apiGet("/api/cart");
+          await applyCartPayloadInPlace(payload.data);
+        } catch (e) {
+          await loadCart();
+        }
       }
 
       async function loadCart() {
@@ -215,132 +503,14 @@
           totalBox.textContent = money(total);
 
           if (!items.length) {
-            statusEl.textContent = "Your cart is empty. Ready to expand your library?";
-            itemsEl.innerHTML = `
-              <div style="padding: 40px; text-align: center; background: white; border-radius: 16px; border: 1px dashed var(--border);">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                <div style="font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 8px;">No items here yet.</div>
-                <div class="muted" style="margin-bottom: 24px;">Explore our catalog to find your next great read.</div>
-                <a href="/bookstore" class="btn">Browse Bookstore</a>
-              </div>
-            `;
-            checkoutBtn.disabled = true;
-            document.getElementById("clear-cart-btn").style.display = "none";
+            renderEmptyCartUI();
             return;
           }
           statusEl.textContent = "";
           checkoutBtn.disabled = false;
           document.getElementById("clear-cart-btn").style.display = "flex";
 
-          items.forEach((it) => {
-            const maxStock = Math.max(0, Number(it.stock_count || 0));
-            const clampedQty = Math.max(1, Math.min(Number(it.quantity || 1), Math.max(1, maxStock)));
-            const line = document.createElement("div");
-            line.className = "line";
-            line.style.background = "var(--bg0)";
-            line.style.border = "none";
-            line.style.padding = "24px";
-            line.style.borderRadius = "16px";
-            line.style.display = "flex";
-            line.style.alignItems = "center";
-            line.style.justifyContent = "space-between";
-            line.style.gap = "24px";
-
-            const coverHtml = it.image_url
-              ? `<img alt="${it.title} cover" loading="lazy" src="${it.image_url}" style="width: 80px; height: 100px; object-fit: cover; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />`
-              : `<div style="width: 80px; height: 100px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; color: var(--muted);">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                </div>`;
-
-            line.innerHTML = `
-              <div style="display: flex; align-items: center; gap: 24px; flex: 1;">
-                ${coverHtml}
-                <div style="flex: 1;">
-                  <div style="font-weight: 800; font-size: 18px; color: var(--accent); margin-bottom: 8px;">${it.title}</div>
-                  <div class="muted" style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 16px;">${it.category || "Textbook"} • ${money(it.price)} each</div>
-                  <div style="display: flex; gap: 12px; align-items: center;">
-                    <div style="display: flex; align-items: center; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 4px;">
-                      <input type="number" min="1" max="${Math.max(1, maxStock)}" value="${clampedQty}" data-qty="${it.id}" data-max-stock="${maxStock}" data-last-qty="${clampedQty}" style="width: 60px; border: none; background: transparent; padding: 4px 8px; text-align: center; font-weight: 600;" />
-                    </div>
-                    <button class="btn outline" type="button" data-update="${it.id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px;">Update</button>
-                    <button class="btn" type="button" data-delete="${it.id}" style="padding: 8px 16px; font-size: 12px; border-radius: 8px; display: flex; align-items: center; gap: 4px; color: white; border-color: var(--bad); background: var(--bad);">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                      Remove
-                    </button>
-                  </div>
-                  <div class="muted" data-stock-left="${it.id}" style="font-size: 12px; margin-top: 6px;">Stock: ${Math.max(0, maxStock - clampedQty)} left</div>
-                </div>
-              </div>
-              <div style="font-weight: 800; font-size: 24px; color: var(--accent);">
-                ${money(it.line_total)}
-              </div>
-            `;
-            itemsEl.appendChild(line);
-          });
-
-          itemsEl.querySelectorAll("[data-update]").forEach((btn) => {
-            btn.addEventListener("mousedown", () => {
-              const itemId = Number(btn.getAttribute("data-update"));
-              const input = itemsEl.querySelector(`[data-qty='${itemId}']`);
-              if (input) input.setAttribute("data-skip-revert", "1");
-            });
-            btn.addEventListener("click", async () => {
-              const itemId = Number(btn.getAttribute("data-update"));
-              const input = itemsEl.querySelector(`[data-qty='${itemId}']`);
-              const maxStock = Number(input.getAttribute("data-max-stock") || 0);
-              const maxAllowed = Math.max(1, maxStock);
-              const qty = Math.max(1, Math.min(Number(input.value || 1), maxAllowed));
-              input.value = String(qty);
-              input.setAttribute("data-last-qty", String(qty));
-              await apiPatch(`/api/cart/items/${itemId}`, { quantity: qty });
-              await loadCart();
-            });
-          });
-
-          itemsEl.querySelectorAll("[data-qty]").forEach((input) => {
-            const itemId = Number(input.getAttribute("data-qty"));
-            const maxStock = Number(input.getAttribute("data-max-stock") || 0);
-            const maxAllowed = Math.max(1, maxStock);
-            const stockLeftEl = itemsEl.querySelector(`[data-stock-left='${itemId}']`);
-            const previewStock = () => {
-              let qty = Number(input.value || input.getAttribute("data-last-qty") || 1);
-              if (!Number.isFinite(qty)) qty = Number(input.getAttribute("data-last-qty") || 1);
-              qty = Math.max(1, Math.min(qty, maxAllowed));
-              if (stockLeftEl) stockLeftEl.textContent = `Stock: ${Math.max(0, maxStock - qty)} left`;
-            };
-            const commitOnEnter = (e) => {
-              if (e.key !== "Enter") return;
-              e.preventDefault();
-              let qty = Number(input.value || input.getAttribute("data-last-qty") || 1);
-              if (!Number.isFinite(qty)) qty = Number(input.getAttribute("data-last-qty") || 1);
-              qty = Math.max(1, Math.min(qty, maxAllowed));
-              input.value = String(qty);
-              input.setAttribute("data-last-qty", String(qty));
-              previewStock();
-              input.blur();
-            };
-            const revertOnBlur = () => {
-              if (input.getAttribute("data-skip-revert") === "1") {
-                input.removeAttribute("data-skip-revert");
-                return;
-              }
-              const lastQty = Number(input.getAttribute("data-last-qty") || 1);
-              input.value = String(lastQty);
-              if (stockLeftEl) stockLeftEl.textContent = `Stock: ${Math.max(0, maxStock - lastQty)} left`;
-            };
-            input.addEventListener("input", previewStock);
-            input.addEventListener("keydown", commitOnEnter);
-            input.addEventListener("blur", revertOnBlur);
-          });
-
-          itemsEl.querySelectorAll("[data-delete]").forEach((btn) => {
-            btn.addEventListener("click", async () => {
-              const itemId = Number(btn.getAttribute("data-delete"));
-              await apiDelete(`/api/cart/items/${itemId}`);
-              if (window.updateCartBadge) updateCartBadge();
-              await loadCart();
-            });
-          });
+          items.forEach((it) => appendCartLine(it));
         } catch (e) {
           statusEl.textContent = e.message || "Failed to load cart.";
           checkoutBtn.disabled = true;
@@ -348,7 +518,68 @@
         }
       }
 
+      async function applyQuantity(itemId, nextQty) {
+        const stepper = itemsEl.querySelector(`.qty-stepper[data-item-id="${itemId}"]`);
+        const maxStock = Number(stepper?.getAttribute("data-max-stock") || 0);
+        const maxAllowed = Math.max(1, maxStock);
+        const display = itemsEl.querySelector(`[data-qty-display="${itemId}"]`);
+        const prevQty = Number(display?.textContent || 1);
+        if (!Number.isFinite(prevQty)) return;
+        const qty = Math.max(1, Math.min(nextQty, maxAllowed));
+        if (qty === prevQty) return;
+
+        const decBtn = itemsEl.querySelector(`[data-qty-dec="${itemId}"]`);
+        const incBtn = itemsEl.querySelector(`[data-qty-inc="${itemId}"]`);
+        if (decBtn) decBtn.disabled = true;
+        if (incBtn) incBtn.disabled = true;
+        try {
+          await apiPatch(`/api/cart/items/${itemId}`, { quantity: qty });
+          if (window.updateCartBadge) updateCartBadge();
+          await refreshCartInPlace();
+        } catch (err) {
+          showToast(err.message || "Could not update quantity", "bad");
+          if (decBtn) decBtn.disabled = prevQty <= 1;
+          if (incBtn) incBtn.disabled = prevQty >= maxAllowed;
+        }
+      }
+
+      itemsEl.addEventListener("click", async (e) => {
+        const dec = e.target.closest("[data-qty-dec]");
+        if (dec) {
+          const itemId = Number(dec.getAttribute("data-qty-dec"));
+          const display = itemsEl.querySelector(`[data-qty-display="${itemId}"]`);
+          if (!display) return;
+          let qty = Number(display.textContent || 1);
+          if (!Number.isFinite(qty)) qty = 1;
+          await applyQuantity(itemId, qty - 1);
+          return;
+        }
+        const inc = e.target.closest("[data-qty-inc]");
+        if (inc) {
+          const itemId = Number(inc.getAttribute("data-qty-inc"));
+          const display = itemsEl.querySelector(`[data-qty-display="${itemId}"]`);
+          if (!display) return;
+          let qty = Number(display.textContent || 1);
+          if (!Number.isFinite(qty)) qty = 1;
+          await applyQuantity(itemId, qty + 1);
+          return;
+        }
+        const del = e.target.closest("[data-delete]");
+        if (del) {
+          const itemId = Number(del.getAttribute("data-delete"));
+          try {
+            await apiDelete(`/api/cart/items/${itemId}`);
+            if (window.updateCartBadge) updateCartBadge();
+            await refreshCartInPlace();
+          } catch (err) {
+            showToast(err.message || "Could not remove item", "bad");
+          }
+        }
+      });
+
       document.getElementById("clear-cart-btn").addEventListener("click", async () => {
+        const confirmed = window.confirm("Clear all items from your cart?");
+        if (!confirmed) return;
         try {
           const payload = await apiGet("/api/cart");
           const items = payload.data?.items || [];
