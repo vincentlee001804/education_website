@@ -279,6 +279,15 @@
         return qs.toString();
       }
 
+      function getCurrentFilters() {
+        return {
+          search: document.getElementById("search").value.trim(),
+          category_id: categorySelect.value ? Number(categorySelect.value) : "",
+          min_price: document.getElementById("min_price").value,
+          max_price: document.getElementById("max_price").value,
+        };
+      }
+
       async function loadBooks(params = {}) {
         booksEl.innerHTML = "";
         statusEl.textContent = "Loading…";
@@ -358,7 +367,12 @@
               await apiPost("/api/cart/items", { book_id: bookId, quantity: 1 }, { auth: true });
               showToast("Added to cart", "good");
               if (window.updateCartBadge) updateCartBadge();
+              await loadBooks(getCurrentFilters());
             } catch (e) {
+              const code = e?.details?.error?.code;
+              if (code === "sold_out" || code === "insufficient_stock") {
+                await loadBooks(getCurrentFilters());
+              }
               showToast(e.message || "Add to cart failed", "bad");
             }
           });
@@ -377,12 +391,7 @@
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        await loadBooks({
-          search: document.getElementById("search").value.trim(),
-          category_id: categorySelect.value ? Number(categorySelect.value) : "",
-          min_price: document.getElementById("min_price").value,
-          max_price: document.getElementById("max_price").value,
-        });
+        await loadBooks(getCurrentFilters());
       });
 
       clearBtn.addEventListener("click", async () => {
