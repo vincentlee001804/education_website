@@ -504,6 +504,96 @@ def admin_create_book():
     return jsonify({"data": {"book_id": b.id}, "error": None}), 201
 
 
+@books_bp.patch("/admin/books/<int:book_id>")
+@_require_roles(["moderator", "admin"])
+def admin_update_book(book_id: int):
+    b = Book.query.get(book_id)
+    if not b:
+        return _json_error("Book not found", code="not_found", status_code=404)
+
+    payload = request.get_json(silent=True) or {}
+    title = (payload.get("title") or "").strip()
+    author = (payload.get("author") or "").strip() or None
+    description = (payload.get("description") or "").strip() or None
+    price = payload.get("price", None)
+    stock_count = payload.get("stock_count", 0)
+    category_id = payload.get("category_id", None)
+    category_name = (payload.get("category_name") or "").strip() or None
+
+    if not title or len(title) < 2 or len(title) > 220:
+        return _json_error("Invalid title", code="invalid_title")
+    try:
+        price = Decimal(str(price))
+    except Exception:
+        return _json_error("Invalid price", code="invalid_price")
+    if price < 0:
+        return _json_error("Price must be >= 0", code="invalid_price")
+    try:
+        stock_count = int(stock_count)
+    except Exception:
+        return _json_error("Invalid stock_count", code="invalid_stock")
+    if stock_count < 0:
+        return _json_error("stock_count must be >= 0", code="invalid_stock")
+
+    category = None
+    if category_id is not None:
+        category = BookCategory.query.get(int(category_id))
+        if not category:
+            return _json_error("category_id not found", code="invalid_category", status_code=404)
+    elif category_name:
+        category = BookCategory.query.filter_by(name=category_name).first()
+        if not category:
+            category = BookCategory(name=category_name)
+            db.session.add(category)
+            db.session.flush()
+    else:
+        return _json_error("Provide category_id or category_name", code="missing_category")
+
+    b.title = title
+    b.author = author
+    b.description = description
+    b.price = price
+    b.category_id = category.id
+
+    inv = Inventory.query.get(book_id)
+    if not inv:
+        inv = Inventory(book_id=book_id, stock_count=stock_count)
+        db.session.add(inv)
+    else:
+        inv.stock_count = stock_count
+
+    db.session.commit()
+    return jsonify({"data": {"updated": True, "book_id": b.id}, "error": None})
+
+
+@books_bp.delete("/admin/books/<int:book_id>")
+@_require_roles(["moderator", "admin"])
+def admin_delete_book(book_id: int):
+    b = Book.query.get(book_id)
+    if not b:
+        return _json_error("Book not found", code="not_found", status_code=404)
+
+    has_orders = OrderItem.query.filter_by(book_id=book_id).first() is not None
+    if has_orders:
+        return _json_error(
+            "Cannot delete book with order history. Consider setting stock to 0 instead.",
+            code="book_has_orders",
+            status_code=409,
+        )
+
+    CartItem.query.filter_by(book_id=book_id).delete(synchronize_session=False)
+    inv = Inventory.query.get(book_id)
+    if inv:
+        db.session.delete(inv)
+    ebook = Ebook.query.get(book_id)
+    if ebook:
+        db.session.delete(ebook)
+
+    db.session.delete(b)
+    db.session.commit()
+    return jsonify({"data": {"deleted": True, "book_id": book_id}, "error": None})
+
+
 @books_bp.post("/admin/books/<int:book_id>/image")
 @_require_roles(["moderator", "admin"])
 def admin_upload_book_image(book_id: int):

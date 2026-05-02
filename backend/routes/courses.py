@@ -371,3 +371,79 @@ def admin_create_resource(module_id: int):
     db.session.commit()
     return jsonify({"data": {"resource_id": res.id}, "error": None}), 201
 
+
+@courses_bp.delete("/admin/resources/<int:resource_id>")
+@_require_roles(["moderator", "admin"])
+def admin_delete_resource(resource_id: int):
+    res = Resource.query.get(resource_id)
+    if not res:
+        return _json_error("Resource not found", code="not_found", status_code=404)
+
+    ResourceCompletion.query.filter_by(resource_id=resource_id).delete(synchronize_session=False)
+    SavedResource.query.filter_by(resource_id=resource_id).delete(synchronize_session=False)
+    db.session.delete(res)
+    db.session.commit()
+    return jsonify({"data": {"deleted": True, "resource_id": resource_id}, "error": None})
+
+
+@courses_bp.delete("/admin/modules/<int:module_id>")
+@_require_roles(["moderator", "admin"])
+def admin_delete_module(module_id: int):
+    mod = Module.query.get(module_id)
+    if not mod:
+        return _json_error("Module not found", code="not_found", status_code=404)
+
+    resources = Resource.query.filter_by(module_id=module_id).all()
+    resource_ids = [r.id for r in resources]
+    if resource_ids:
+        ResourceCompletion.query.filter(ResourceCompletion.resource_id.in_(resource_ids)).delete(synchronize_session=False)
+        SavedResource.query.filter(SavedResource.resource_id.in_(resource_ids)).delete(synchronize_session=False)
+        Resource.query.filter(Resource.id.in_(resource_ids)).delete(synchronize_session=False)
+
+    db.session.delete(mod)
+    db.session.commit()
+    return jsonify({"data": {"deleted": True, "module_id": module_id}, "error": None})
+
+
+@courses_bp.delete("/admin/courses/<int:course_id>")
+@_require_roles(["moderator", "admin"])
+def admin_delete_course(course_id: int):
+    course = Course.query.get(course_id)
+    if not course:
+        return _json_error("Course not found", code="not_found", status_code=404)
+
+    modules = Module.query.filter_by(course_id=course_id).all()
+    module_ids = [m.id for m in modules]
+    if module_ids:
+        resources = Resource.query.filter(Resource.module_id.in_(module_ids)).all()
+        resource_ids = [r.id for r in resources]
+        if resource_ids:
+            ResourceCompletion.query.filter(ResourceCompletion.resource_id.in_(resource_ids)).delete(synchronize_session=False)
+            SavedResource.query.filter(SavedResource.resource_id.in_(resource_ids)).delete(synchronize_session=False)
+            Resource.query.filter(Resource.id.in_(resource_ids)).delete(synchronize_session=False)
+        Module.query.filter(Module.id.in_(module_ids)).delete(synchronize_session=False)
+
+    db.session.delete(course)
+    db.session.commit()
+    return jsonify({"data": {"deleted": True, "course_id": course_id}, "error": None})
+
+
+@courses_bp.delete("/admin/subjects/<int:subject_id>")
+@_require_roles(["moderator", "admin"])
+def admin_delete_subject(subject_id: int):
+    sub = Subject.query.get(subject_id)
+    if not sub:
+        return _json_error("Subject not found", code="not_found", status_code=404)
+
+    has_courses = Course.query.filter_by(subject_id=subject_id).first() is not None
+    if has_courses:
+        return _json_error(
+            "Cannot delete subject with existing courses. Move/delete courses first.",
+            code="subject_has_courses",
+            status_code=409,
+        )
+
+    db.session.delete(sub)
+    db.session.commit()
+    return jsonify({"data": {"deleted": True, "subject_id": subject_id}, "error": None})
+

@@ -745,6 +745,74 @@ input:focus, textarea:focus, select:focus{
   padding: 18px;
 }
 
+.admin-workflow-context {
+  position: sticky;
+  top: 84px;
+  z-index: 6;
+}
+
+.admin-toggle-btn {
+  width: auto !important;
+  box-shadow: none;
+}
+
+.intent-switch {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 6px 0 12px;
+}
+
+.intent-switch label {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.intent-switch input[type="radio"] {
+  width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-tab-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-tab-btn.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.admin-tab-panel[hidden] {
+  display: none !important;
+}
+
+.tabbed-workflow .admin-accordion > summary {
+  display: none;
+}
+
 /* Toast Notifications */
 .toast-stack {
   position: fixed;
