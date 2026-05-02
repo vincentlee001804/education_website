@@ -16,6 +16,7 @@
           <a href="/">Home</a>
           <a href="/courses">Courses</a>
           <a href="/bookstore">Bookstore</a>
+          <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
           <a href="/forum">Forum</a>
         </div>
         <div class="navlinks">
@@ -45,6 +46,7 @@
           </div>
           <a href="/cart" class="nav-icon" aria-label="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span class="badge" id="cart-badge" style="display:none; background: var(--accent2);">0</span>
           </a>
           
           <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
@@ -118,7 +120,8 @@
           <div style="display: flex; flex-direction: column; gap: 16px;">
             <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
             <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
-            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+            <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
+          <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
           </div>
         </div>
         <div>

@@ -16,6 +16,7 @@
           <a href="/">Home</a>
           <a href="/courses" class="active">Courses</a>
           <a href="/bookstore">Bookstore</a>
+          <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
           <a href="/forum">Forum</a>
         </div>
         <div class="navlinks">
@@ -45,6 +46,7 @@
           </div>
           <a href="/cart" class="nav-icon" aria-label="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span class="badge" id="cart-badge" style="display:none; background: var(--accent2);">0</span>
           </a>
           
           <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
@@ -156,7 +158,8 @@
           <div style="display: flex; flex-direction: column; gap: 16px;">
             <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
             <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
-            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+            <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
+          <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
           </div>
         </div>
         <div>
@@ -357,18 +360,25 @@
             updateCompleteBtnUI();
             
             completeBtn.addEventListener("click", async () => {
+              const token = typeof readToken === "function" ? readToken() : null;
+              if (!token) {
+                showToast("Please log in to mark as complete", "bad");
+                return;
+              }
               try {
                 if (isCompleted) {
                   await apiDelete(`/api/resources/${r.id}/complete`, { auth: true });
                   isCompleted = false;
+                  showToast("Marked as incomplete", "info");
                 } else {
                   await apiPost(`/api/resources/${r.id}/complete`, {}, { auth: true });
                   isCompleted = true;
+                  showToast("Marked as complete!", "good");
                 }
                 updateCompleteBtnUI();
                 refreshProgressUI();
               } catch (err) {
-                alert(err.message || "Failed to update completion status. Are you logged in?");
+                showToast(err.message || "Failed to update completion status. Are you logged in?", "bad");
               }
             });
 
@@ -386,17 +396,24 @@
             updateSaveBtnUI();
             
             saveBtn.addEventListener("click", async () => {
+              const token = typeof readToken === "function" ? readToken() : null;
+              if (!token) {
+                showToast("Please log in to save bookmarks", "bad");
+                return;
+              }
               try {
                 if (isSaved) {
                   await apiDelete(`/api/resources/${r.id}/save`, { auth: true });
                   isSaved = false;
+                  showToast("Removed from bookmarks", "info");
                 } else {
                   await apiPost(`/api/resources/${r.id}/save`, {}, { auth: true });
                   isSaved = true;
+                  showToast("Saved to bookmarks!", "good");
                 }
                 updateSaveBtnUI();
               } catch (err) {
-                alert(err.message || "Failed to update save status. Are you logged in?");
+                showToast(err.message || "Failed to update save status. Are you logged in?", "bad");
               }
             });
 

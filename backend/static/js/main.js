@@ -48,6 +48,27 @@ window.setStatusMessage = setStatusMessage;
 window.withButtonLoading = withButtonLoading;
 window.showToast = showToast;
 
+async function updateCartBadge() {
+  const badgeEl = document.getElementById("cart-badge");
+  if (!badgeEl) return;
+  try {
+    const payload = await apiGet("/api/cart", { auth: true });
+    const cart = payload.data || {};
+    const items = cart.items || [];
+    let count = 0;
+    items.forEach(it => { count += Number(it.quantity || 1); });
+    if (count > 0) {
+      badgeEl.textContent = String(count);
+      badgeEl.style.display = "flex";
+    } else {
+      badgeEl.style.display = "none";
+    }
+  } catch (e) {
+    badgeEl.style.display = "none";
+  }
+}
+window.updateCartBadge = updateCartBadge;
+
 async function refreshAuthUI() {
   const token = readToken?.() ?? null;
   const loginLinks = document.querySelectorAll("[data-auth='logged-out']");
@@ -173,7 +194,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupDropdown();
   if (typeof readToken === "function" && typeof apiGet === "function") {
-    refreshAuthUI();
+    refreshAuthUI().then(() => {
+      if (window.__ME) {
+        updateCartBadge();
+      }
+    });
   }
 });
 

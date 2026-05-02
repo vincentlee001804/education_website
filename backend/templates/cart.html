@@ -16,6 +16,7 @@
           <a href="/">Home</a>
           <a href="/courses">Courses</a>
           <a href="/bookstore">Bookstore</a>
+          <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
           <a href="/forum">Forum</a>
         </div>
         <div class="navlinks">
@@ -45,6 +46,7 @@
           </div>
           <a href="/cart" class="nav-icon" aria-label="Cart">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span class="badge" id="cart-badge" style="display:none; background: var(--accent2);">0</span>
           </a>
           
           <div id="user-avatar-container" style="position: relative; display: none;" data-auth="logged-in">
@@ -112,6 +114,10 @@
             </div>
 
             <div style="padding-top: 24px; border-top: 1px solid var(--border); margin-bottom: 24px;">
+              <div style="display: flex; gap: 8px; margin-bottom: 24px;">
+                <input type="text" id="promo-code" placeholder="Promo Code" style="flex: 1; padding: 12px; background: var(--bg0); border-radius: 8px;" />
+                <button class="btn secondary" type="button" onclick="showToast('Promo code applied!', 'good')" style="padding: 12px 16px;">Apply</button>
+              </div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span style="font-weight: 600; color: var(--muted);">Subtotal</span>
                 <span id="subtotal-val" style="font-weight: 600; color: var(--text);">$0.00</span>
@@ -129,6 +135,10 @@
             <button class="btn" type="button" id="checkout-btn" style="width: 100%; padding: 16px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
               Secure Checkout
+            </button>
+            <button class="btn outline" type="button" id="clear-cart-btn" style="width: 100%; padding: 12px; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; color: var(--bad); border-color: var(--border);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Clear Cart
             </button>
             <div id="checkout-error" class="status bad" style="display:none; margin-top:16px;"></div>
           </div>
@@ -149,7 +159,8 @@
           <div style="display: flex; flex-direction: column; gap: 16px;">
             <a href="/courses" style="color: var(--muted); font-size: 14px; text-decoration: none;">Course Catalog</a>
             <a href="/bookstore" style="color: var(--muted); font-size: 14px; text-decoration: none;">Bookstore</a>
-            <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
+            <a href="/portal" aria-label="Bookmarks">Bookmarks</a>
+          <a href="/forum" style="color: var(--muted); font-size: 14px; text-decoration: none;">Discourse Forum</a>
           </div>
         </div>
         <div>
@@ -204,12 +215,22 @@
           totalBox.textContent = money(total);
 
           if (!items.length) {
-            statusEl.textContent = "Your cart is empty.";
+            statusEl.textContent = "Your cart is empty. Ready to expand your library?";
+            itemsEl.innerHTML = `
+              <div style="padding: 40px; text-align: center; background: white; border-radius: 16px; border: 1px dashed var(--border);">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <div style="font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 8px;">No items here yet.</div>
+                <div class="muted" style="margin-bottom: 24px;">Explore our catalog to find your next great read.</div>
+                <a href="/bookstore" class="btn">Browse Bookstore</a>
+              </div>
+            `;
             checkoutBtn.disabled = true;
+            document.getElementById("clear-cart-btn").style.display = "none";
             return;
           }
           statusEl.textContent = "";
           checkoutBtn.disabled = false;
+          document.getElementById("clear-cart-btn").style.display = "flex";
 
           items.forEach((it) => {
             const maxStock = Math.max(0, Number(it.stock_count || 0));
@@ -316,14 +337,31 @@
             btn.addEventListener("click", async () => {
               const itemId = Number(btn.getAttribute("data-delete"));
               await apiDelete(`/api/cart/items/${itemId}`);
+              if (window.updateCartBadge) updateCartBadge();
               await loadCart();
             });
           });
         } catch (e) {
           statusEl.textContent = e.message || "Failed to load cart.";
           checkoutBtn.disabled = true;
+          document.getElementById("clear-cart-btn").style.display = "none";
         }
       }
+
+      document.getElementById("clear-cart-btn").addEventListener("click", async () => {
+        try {
+          const payload = await apiGet("/api/cart");
+          const items = payload.data?.items || [];
+          for (const item of items) {
+            await apiDelete(`/api/cart/items/${item.id}`);
+          }
+          if (window.updateCartBadge) updateCartBadge();
+          await loadCart();
+          showToast("Cart cleared", "info");
+        } catch (e) {
+          showToast("Failed to clear cart", "bad");
+        }
+      });
 
       checkoutBtn.addEventListener("click", async () => {
         checkoutError.style.display = "none";
