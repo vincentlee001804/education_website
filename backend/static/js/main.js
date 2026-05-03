@@ -24,7 +24,7 @@ async function withButtonLoading(btn, pendingText, callback) {
   }
 }
 
-function showToast(message, type = "info", durationMs = 2600) {
+function showToast(message, type = "info", durationMs = 3500) {
   let stack = document.getElementById("toast-stack");
   if (!stack) {
     stack = document.createElement("div");
@@ -32,15 +32,44 @@ function showToast(message, type = "info", durationMs = 2600) {
     stack.className = "toast-stack";
     document.body.appendChild(stack);
   }
+  
   const toast = document.createElement("div");
-  toast.className = "toast";
-  if (type === "good") toast.classList.add("good");
-  if (type === "bad") toast.classList.add("bad");
-  toast.textContent = message;
+  toast.className = `toast ${type}`;
+  
+  const icon = document.createElement("div");
+  icon.className = "toast-icon";
+  if (type === "good") {
+    icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  } else {
+    icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+  }
+  
+  const content = document.createElement("div");
+  content.className = "toast-content";
+  content.textContent = message;
+  
+  toast.appendChild(icon);
+  toast.appendChild(content);
+
+  // Add a Login action if the message is about logging in
+  if (message.toLowerCase().includes("log in") || message.toLowerCase().includes("sign in")) {
+    const action = document.createElement("a");
+    action.href = "/login";
+    action.className = "toast-action";
+    action.textContent = "Login";
+    toast.appendChild(action);
+    durationMs = 6000; // Keep it longer if it has an action
+  }
+  
   stack.appendChild(toast);
+  
   window.setTimeout(() => {
-    toast.remove();
-    if (stack && !stack.children.length) stack.remove();
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(100%)";
+    window.setTimeout(() => {
+      toast.remove();
+      if (stack && !stack.children.length) stack.remove();
+    }, 300);
   }, durationMs);
 }
 
@@ -77,7 +106,13 @@ async function refreshAuthUI() {
   const adminLinks = document.querySelectorAll("[data-auth='admin-only']");
 
   if (!token) {
-    loginLinks.forEach((x) => (x.style.display = "inline-flex"));
+    loginLinks.forEach((x) => {
+      if (x.tagName === 'DIV' || x.tagName === 'SECTION') {
+        x.style.display = "flex";
+      } else {
+        x.style.display = "inline-flex";
+      }
+    });
     userLinks.forEach((x) => (x.style.display = "none"));
     adminLinks.forEach((x) => (x.style.display = "none"));
     if (avatarContainer) avatarContainer.style.display = "none";
@@ -94,8 +129,9 @@ async function refreshAuthUI() {
 
     loginLinks.forEach((x) => (x.style.display = "none"));
     userLinks.forEach((x) => {
-      // Keep original display style if it's a block/flex element, otherwise default to inline-flex
-      if (x.tagName === 'A' && x.classList.contains('dropdown-item')) {
+      if (x.tagName === 'DIV' || x.tagName === 'SECTION') {
+        x.style.display = "flex";
+      } else if (x.tagName === 'A' && x.classList.contains('dropdown-item')) {
         x.style.display = "flex";
       } else {
         x.style.display = "inline-flex";
