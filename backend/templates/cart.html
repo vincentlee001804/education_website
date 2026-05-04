@@ -154,6 +154,21 @@
         margin-top: 8px;
       }
 
+      .cart-page-header {
+        margin-bottom: 40px;
+        padding-bottom: 40px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .cart-title {
+        margin: 0 0 16px;
+        font-size: 48px;
+        color: var(--accent);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+
       @media (max-width: 900px) {
         .cart-line {
           flex-direction: column;
@@ -181,13 +196,67 @@
       }
 
       @media (max-width: 640px) {
+        .cart-page-header {
+          margin-bottom: 22px;
+          padding-bottom: 22px;
+        }
+
+        .cart-title {
+          font-size: 34px;
+          margin-bottom: 8px;
+        }
+
+        .cart-line {
+          padding: 16px;
+          border-radius: 14px;
+          gap: 10px;
+        }
+
         .cart-item-main {
           flex-direction: column;
+          gap: 12px;
+        }
+
+        .cart-item-main > div {
+          width: 100%;
+        }
+
+        .cart-line-aside {
+          justify-content: space-between;
+          gap: 10px;
+        }
+
+        .cart-line-total {
+          font-size: 20px;
+        }
+
+        .cart-remove-btn {
+          min-width: 0;
+          padding: 0 14px;
+        }
+
+        .cart-action-btn {
+          height: 38px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .cart-columns {
+          grid-template-columns: 1fr !important;
+          gap: 16px !important;
+        }
+
+        .cart-panel {
+          width: 100%;
+        }
+
+        .cart-summary-sidebar {
+          display: none;
         }
       }
     </style>
   </head>
-  <body>
+  <body class="page-cart">
     <header>
       <div class="nav">
         <div class="brand">
@@ -265,15 +334,15 @@
     </header>
 
     <main>
-      <div style="margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid var(--border);">
+      <div class="cart-page-header">
         <a href="/bookstore" style="display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           Continue Shopping
         </a>
-        <h1 style="margin: 0 0 16px; font-size: 48px; color: var(--accent); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;">Your Cart</h1>
+        <h1 class="cart-title">Your Cart</h1>
       </div>
 
-      <div class="two-col cart-columns" style="grid-template-columns: 1fr 360px; gap: 40px; align-items: stretch;">
+      <div class="layout-sidebar-right cart-columns" style="align-items: stretch;">
         <div class="card cart-panel" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
           <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Cart Items</h2>
           <div id="cart-status" class="muted">Loading…</div>
@@ -286,7 +355,7 @@
           </div>
         </div>
 
-        <aside class="sidebar" style="position: sticky; top: 100px; align-self: stretch;">
+        <aside class="sidebar cart-summary-sidebar" style="position: sticky; top: 100px; align-self: stretch;">
           <div class="card cart-panel" style="padding: 32px; background: white; border: 1px solid var(--border); border-radius: 24px; box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);">
             <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Order Summary</h2>
             <div class="muted" style="line-height: 1.6; font-size: 14px; margin-bottom: 24px;">
@@ -366,6 +435,10 @@
         </div>
       </div>
     </footer>
+    <div class="mobile-sticky-checkout" id="mobile-sticky-checkout">
+      <div style="font-weight: 700; color: var(--accent); white-space: nowrap;" id="mobile-total-box">RM 0.00</div>
+      <button class="btn" type="button" id="checkout-btn-mobile">Checkout Now</button>
+    </div>
 
     <script src="/static/js/api.js"></script>
     <script src="/static/js/main.js"></script>
@@ -373,7 +446,9 @@
       const statusEl = document.getElementById("cart-status");
       const itemsEl = document.getElementById("items");
       const totalBox = document.getElementById("total-box");
+      const mobileTotalBox = document.getElementById("mobile-total-box");
       const checkoutBtn = document.getElementById("checkout-btn");
+      const checkoutBtnMobile = document.getElementById("checkout-btn-mobile");
       const checkoutError = document.getElementById("checkout-error");
 
       function money(x) {
@@ -392,6 +467,8 @@
               </div>
             `;
         checkoutBtn.disabled = true;
+        if (checkoutBtnMobile) checkoutBtnMobile.disabled = true;
+        if (mobileTotalBox) mobileTotalBox.textContent = money(0);
         document.getElementById("clear-cart-btn").style.display = "none";
       }
 
@@ -440,6 +517,7 @@
         const total = cart.total || 0;
         document.getElementById("subtotal-val").textContent = money(total);
         totalBox.textContent = money(total);
+        if (mobileTotalBox) mobileTotalBox.textContent = money(total);
 
         if (!items.length) {
           renderEmptyCartUI();
@@ -448,6 +526,7 @@
 
         statusEl.textContent = "";
         checkoutBtn.disabled = false;
+        if (checkoutBtnMobile) checkoutBtnMobile.disabled = false;
         document.getElementById("clear-cart-btn").style.display = "flex";
 
         const ids = new Set(items.map((i) => i.id));
@@ -499,6 +578,7 @@
           const total = cart.total || 0;
           document.getElementById("subtotal-val").textContent = money(total);
           totalBox.textContent = money(total);
+          if (mobileTotalBox) mobileTotalBox.textContent = money(total);
 
           if (!items.length) {
             renderEmptyCartUI();
@@ -506,12 +586,14 @@
           }
           statusEl.textContent = "";
           checkoutBtn.disabled = false;
+          if (checkoutBtnMobile) checkoutBtnMobile.disabled = false;
           document.getElementById("clear-cart-btn").style.display = "flex";
 
           items.forEach((it) => appendCartLine(it));
         } catch (e) {
           statusEl.textContent = e.message || "Failed to load cart.";
           checkoutBtn.disabled = true;
+          if (checkoutBtnMobile) checkoutBtnMobile.disabled = true;
           document.getElementById("clear-cart-btn").style.display = "none";
         }
       }
@@ -602,6 +684,12 @@
           checkoutError.textContent = e.message || "Checkout failed";
         }
       });
+
+      if (checkoutBtnMobile) {
+        checkoutBtnMobile.addEventListener("click", () => {
+          if (!checkoutBtn.disabled) checkoutBtn.click();
+        });
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
         loadCart();

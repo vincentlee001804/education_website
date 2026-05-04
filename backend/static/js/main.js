@@ -226,9 +226,117 @@ function setupLogout() {
   });
 }
 
+function setupMobileNav() {
+  const nav = document.querySelector(".nav");
+  const navCenter = document.querySelector(".nav-center");
+  if (!nav || !navCenter) return;
+
+  const existingToggle = document.querySelector(".mobile-nav-toggle");
+  if (existingToggle) return;
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "mobile-nav-toggle";
+  toggle.setAttribute("aria-label", "Open navigation menu");
+  toggle.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+
+  const navlinks = nav.querySelector(".navlinks");
+  if (navlinks) {
+    const avatarContainer = navlinks.querySelector("#user-avatar-container");
+    if (avatarContainer) {
+      navlinks.insertBefore(toggle, avatarContainer);
+    } else {
+      navlinks.appendChild(toggle);
+    }
+  } else {
+    nav.appendChild(toggle);
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "mobile-nav-overlay";
+
+  const drawer = document.createElement("aside");
+  drawer.className = "mobile-nav-drawer";
+  drawer.setAttribute("aria-label", "Mobile navigation");
+
+  const primaryLinks = Array.from(navCenter.querySelectorAll("a"))
+    .map((a) => `<a href="${a.getAttribute("href") || "#"}" class="${a.classList.contains("active") ? "active" : ""}">${a.textContent?.trim() || "Link"}</a>`)
+    .join("");
+
+  const authLinks = Array.from(document.querySelectorAll(".navlinks a.btn-link"))
+    .map((a) => {
+      const dataAuth = a.getAttribute("data-auth") ? ` data-auth="${a.getAttribute("data-auth")}"` : "";
+      const style = a.getAttribute("style") ? ` style="${a.getAttribute("style")}"` : "";
+      return `<a href="${a.getAttribute("href") || "#"}"${dataAuth}${style}>${a.textContent?.trim() || "Account"}</a>`;
+    })
+    .join("");
+
+  drawer.innerHTML = `
+    <div class="mobile-nav-header">
+      <div class="mobile-nav-title">Menu</div>
+      <button type="button" class="mobile-nav-close" aria-label="Close navigation menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      ${primaryLinks}
+      ${authLinks}
+    </nav>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(drawer);
+
+  const closeBtn = drawer.querySelector(".mobile-nav-close");
+  const closeDrawer = () => {
+    overlay.classList.remove("open");
+    drawer.classList.remove("open");
+    document.body.style.overflow = "";
+  };
+  const openDrawer = () => {
+    overlay.classList.add("open");
+    drawer.classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  toggle.addEventListener("click", openDrawer);
+  closeBtn?.addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+  drawer.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    if (link) closeDrawer();
+  });
+}
+
+function setupBrandHomeNavigation() {
+  const brand = document.querySelector(".brand");
+  if (!brand) return;
+  if (brand.querySelector("a")) return;
+
+  brand.style.cursor = "pointer";
+  brand.setAttribute("role", "link");
+  brand.setAttribute("tabindex", "0");
+  brand.setAttribute("aria-label", "Go to homepage");
+
+  const goHome = () => {
+    if (window.location.pathname === "/") return;
+    window.location.href = "/";
+  };
+
+  brand.addEventListener("click", goHome);
+  brand.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      goHome();
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   setupLogout();
   setupDropdown();
+  setupMobileNav();
+  setupBrandHomeNavigation();
   if (typeof readToken === "function" && typeof apiGet === "function") {
     refreshAuthUI().then(() => {
       if (window.__ME) {
