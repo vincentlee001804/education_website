@@ -218,7 +218,7 @@ header{
 .navlinks a:focus, .navlinks button:focus{outline:none;}
 
 .mobile-nav-toggle {
-  display: none;
+  display: none !important;
   width: 44px;
   height: 44px;
   border: 1px solid var(--border);
