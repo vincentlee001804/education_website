@@ -19,6 +19,11 @@
           <a href="/forum" aria-label="Discussion forum">Forum</a>
         </div>
         <div class="navlinks">
+          <div class="search-bar" style="position: relative;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="global-search-input" placeholder="Search resources..." autocomplete="off" />
+            <div class="dropdown-menu" id="global-search-results" style="display:none; position:absolute; top:100%; left:0; width:100%; min-width:300px; padding:0; margin-top:8px; z-index: 1000; overflow:hidden; max-height: 400px; overflow-y: auto;"></div>
+          </div>
           <div id="notification-container" style="position: relative;">
             <div class="nav-icon" id="notification-btn" style="cursor: pointer;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -86,10 +91,10 @@
     <main>
       <div class="two-col">
         <aside class="sidebar">
-          <h4 style="font-size: 12px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px;">Departments</h4>
+          <h4 style="font-size: 12px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 16px;">Courses</h4>
           <div class="card" style="padding: 20px;">
             <div class="sidebar-nav" id="subject-nav">
-              <a href="?" class="active">All Departments</a>
+              <a href="?" class="active">All Courses</a>
             </div>
           </div>
         </aside>
@@ -104,10 +109,7 @@
                   Explore advanced seminars, core requirements, and independent study options curated for rigorous academic pursuit.
                 </p>
               </div>
-              <div class="search-bar" style="background: white; padding: 12px 20px; width: 300px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" placeholder="Search by title or code..." style="width: 100%; border: none; background: transparent;" />
-              </div>
+
             </div>
 
             <div id="status" class="muted" style="margin-top:12px;">Loading…</div>
@@ -185,7 +187,7 @@
           const currentUrl = new URL(window.location.href);
           const activeSubjectId = currentUrl.searchParams.get("subject_id");
 
-          let html = `<a href="?" class="${!activeSubjectId ? 'active' : ''}">All Departments</a>`;
+          let html = `<a href="?" class="${!activeSubjectId ? 'active' : ''}">All Courses</a>`;
           subjects.forEach(s => {
             subjectMap[s.id] = s.name;
             const isActive = activeSubjectId === String(s.id);
@@ -261,10 +263,13 @@
             el.style.border = "none";
             el.style.boxShadow = "0 10px 30px -10px rgba(0,0,0,0.08)";
             
-            const categoryName = c.subject_id && subjectMap[c.subject_id] ? subjectMap[c.subject_id] : (c.subject_id ? `Subject ${c.subject_id}` : "Uncategorized");
+            let categoryName = c.subject_id && subjectMap[c.subject_id] ? subjectMap[c.subject_id] : (c.subject_id ? `Subject ${c.subject_id}` : "Uncategorized");
+            if (categoryName.length > 15) {
+              categoryName = categoryName.substring(0, 15) + "...";
+            }
             const categoryPill = c.subject_id 
-              ? `<a href="?subject_id=${c.subject_id}" style="text-decoration: none;"><span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;">${categoryName}</span></a>`
-              : `<span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;">${categoryName}</span>`;
+              ? `<a href="?subject_id=${c.subject_id}" style="text-decoration: none;" title="${c.subject_id && subjectMap[c.subject_id] ? subjectMap[c.subject_id] : categoryName}"><span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;">${categoryName}</span></a>`
+              : `<span style="background: #FFF8E7; color: #D4A017; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.1em;" title="${categoryName}">${categoryName}</span>`;
 
             const p = progressByCourseId[c.id] || { completed: 0, total: 0, percent: 0 };
             const progressDetail = completedIds
@@ -277,7 +282,6 @@
                 <span style="font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em;">4 CREDITS</span>
               </div>
               <h3 style="font-size: 24px; font-weight: 800; line-height: 1.2; margin-bottom: 8px; color: var(--accent);">${c.title}</h3>
-              <p style="font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em;">CS-401 • DR. ALAN TURING</p>
               
               <p style="font-size: 16px; color: var(--muted); line-height: 1.6; margin-bottom: 32px; flex-grow: 1;">
                 ${c.description ? c.description.slice(0, 140) + (c.description.length > 140 ? "…" : "") : "Fundamental concepts including search, knowledge representation, and machine learning."}
@@ -295,7 +299,7 @@
               </div>
               
               <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border);">
-                <span style="font-weight: 700; color: var(--accent); font-size: 14px;">CS Department</span>
+                <span style="font-weight: 700; color: var(--accent); font-size: 14px;">Learn more</span>
                 <a href="/course/${c.id}" style="color: var(--accent); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--bg0); transition: all 0.2s;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>

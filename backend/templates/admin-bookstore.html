@@ -19,9 +19,10 @@
           <a href="/forum">Forum</a>
         </div>
         <div class="navlinks">
-          <div class="search-bar">
+          <div class="search-bar" style="position: relative;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" placeholder="Search resources..." />
+            <input type="text" id="global-search-input" placeholder="Search resources..." autocomplete="off" />
+            <div class="dropdown-menu" id="global-search-results" style="display:none; position:absolute; top:100%; left:0; width:100%; min-width:300px; padding:0; margin-top:8px; z-index: 1000; overflow:hidden; max-height: 400px; overflow-y: auto;"></div>
           </div>
           <div id="notification-container" style="position: relative;">
             <div class="nav-icon" id="notification-btn" style="cursor: pointer;">

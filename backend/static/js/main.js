@@ -337,6 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupDropdown();
   setupMobileNav();
   setupBrandHomeNavigation();
+  setupGlobalSearch();
   if (typeof readToken === "function" && typeof apiGet === "function") {
     refreshAuthUI().then(() => {
       if (window.__ME) {
@@ -345,4 +346,94 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+function setupGlobalSearch() {
+  const searchInput = document.getElementById("global-search-input");
+  const searchResults = document.getElementById("global-search-results");
+  if (!searchInput || !searchResults) return;
+
+  let debounceTimer;
+
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(debounceTimer);
+    const query = e.target.value.trim();
+    
+    if (query.length < 2) {
+      searchResults.style.display = "none";
+      return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        const payload = await apiGet(`/api/search?q=${encodeURIComponent(query)}`, { auth: false });
+        renderSearchResults(payload.data, query);
+      } catch (err) {
+        console.error("Search failed:", err);
+      }
+    }, 300);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+      searchResults.style.display = "none";
+    }
+  });
+  
+  searchInput.addEventListener("click", () => {
+    if (searchInput.value.trim().length >= 2 && searchResults.innerHTML !== "") {
+      searchResults.style.display = "block";
+    }
+  });
+
+  function renderSearchResults(data, query) {
+    let html = "";
+    let hasResults = false;
+
+    if (data.courses && data.courses.length > 0) {
+      hasResults = true;
+      html += `<div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 12px 16px; background: #fafafa;"><div class="name" style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Courses</div></div>`;
+      data.courses.forEach(c => {
+        html += `<a href="/course/${c.id}" class="dropdown-item" style="padding: 12px 16px;">
+          <div>
+            <div style="font-weight:600; color:var(--accent);">${c.title}</div>
+            <div style="font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px;">${c.description || ''}</div>
+          </div>
+        </a>`;
+      });
+    }
+
+    if (data.books && data.books.length > 0) {
+      hasResults = true;
+      html += `<div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 12px 16px; background: #fafafa;"><div class="name" style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Books</div></div>`;
+      data.books.forEach(b => {
+        html += `<a href="/bookstore" class="dropdown-item" style="padding: 12px 16px;">
+          <div>
+            <div style="font-weight:600; color:var(--accent);">${b.title}</div>
+            <div style="font-size:12px; color:var(--muted);">By ${b.author}</div>
+          </div>
+        </a>`;
+      });
+    }
+
+    if (data.forum_topics && data.forum_topics.length > 0) {
+      hasResults = true;
+      html += `<div class="dropdown-header" style="border-bottom: 1px solid var(--border); padding: 12px 16px; background: #fafafa;"><div class="name" style="font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Forum Discussions</div></div>`;
+      data.forum_topics.forEach(t => {
+        html += `<a href="/forum?topic=${t.id}" class="dropdown-item" style="padding: 12px 16px;">
+          <div>
+            <div style="font-weight:600; color:var(--accent);">${t.title}</div>
+            <div style="font-size:12px; color:var(--muted);">${t.category}</div>
+          </div>
+        </a>`;
+      });
+    }
+
+    if (!hasResults) {
+      html = `<div style="padding:16px; text-align:center; color:var(--muted); font-size:14px;">No results found for "${query}"</div>`;
+    }
+
+    searchResults.innerHTML = html;
+    searchResults.style.display = "block";
+  }
+}
 

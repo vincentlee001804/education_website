@@ -10,7 +10,7 @@ from .routes.auth import auth_bp
 from .routes.books import books_bp
 from .routes.courses import courses_bp
 from .routes.forum import forum_bp
-
+from .routes.search import search_bp
 
 def create_app() -> Flask:
     app = Flask(
@@ -36,6 +36,7 @@ def create_app() -> Flask:
     app.register_blueprint(books_bp, url_prefix="/api")
     app.register_blueprint(courses_bp, url_prefix="/api")
     app.register_blueprint(forum_bp, url_prefix="/api")
+    app.register_blueprint(search_bp, url_prefix="/api")
 
     # Static "frontend" pages: no server-side rendering; HTML is static and
     # fetches API JSON.
