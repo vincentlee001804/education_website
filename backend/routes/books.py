@@ -337,6 +337,7 @@ def checkout():
     # by removing the active cart once checkout is finalized.
     for it in items:
         db.session.delete(it)
+    db.session.flush()
     db.session.delete(cart)
     db.session.commit()
 
