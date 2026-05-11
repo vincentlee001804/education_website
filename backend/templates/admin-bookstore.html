@@ -438,7 +438,7 @@
                   <div class="admin-detail-item"><strong>ID:</strong> B${b.id}</div>
                   <div class="admin-detail-item"><strong>Category:</strong> ${cat}</div>
                   <div class="admin-detail-item"><strong>Author:</strong> ${b.author || "-"}</div>
-                  <div class="admin-detail-item"><strong>Price:</strong> $${Number(b.price || 0).toFixed(2)}</div>
+                  <div class="admin-detail-item"><strong>Price:</strong> RM ${Number(b.price || 0).toFixed(2)}</div>
                   <div class="admin-detail-item"><strong>Stock:</strong> ${b.stock_count ?? 0}</div>
                   <div class="admin-detail-item"><strong>Description:</strong> ${b.description || "-"}</div>
                 </div>
@@ -451,7 +451,7 @@
               <td><div class="admin-cell-truncate" title="${b.title || "-"}">${b.title || "-"}</div></td>
               <td><div class="admin-cell-truncate" title="${b.author || "-"}">${b.author || "-"}</div></td>
               <td><div class="admin-cell-truncate" title="${cat}">${cat}</div></td>
-              <td>$${Number(b.price || 0).toFixed(2)}</td>
+              <td>RM ${Number(b.price || 0).toFixed(2)}</td>
               <td>${b.stock_count ?? 0}</td>
               <td><button class="btn outline xs edit-book-row-btn" type="button" data-book-id="${b.id}">Edit</button></td>
             </tr>

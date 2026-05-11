@@ -352,12 +352,7 @@
           <h2 style="margin: 0 0 24px; font-size: 24px; color: var(--accent); font-weight: 800;">Cart Items</h2>
           <div id="cart-status" class="muted">Loading…</div>
           <div id="items" class="list" style="margin-top:0; gap: 16px;"></div>
-          <div style="margin-top: 20px;">
-            <a href="/bookstore" class="btn outline" style="display: inline-flex; align-items: center; gap: 8px; background: white;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              More Items
-            </a>
-          </div>
+
         </div>
 
         <aside class="sidebar cart-summary-sidebar" style="position: sticky; top: 100px; align-self: stretch;">
@@ -462,7 +457,7 @@
       }
 
       function renderEmptyCartUI() {
-        statusEl.textContent = "Your cart is empty. Ready to expand your library?";
+        statusEl.textContent = "";
         itemsEl.innerHTML = `
               <div style="padding: 40px; text-align: center; background: white; border-radius: 16px; border: 1px dashed var(--border);">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
