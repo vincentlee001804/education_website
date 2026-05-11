@@ -436,10 +436,10 @@ def download_ebook(book_id: int):
 
 @books_bp.get("/uploads/book-images/<path:filename>")
 def public_book_image(filename: str):
-    # Public read for images.
-    # Stored names are uuid-based so traversal risk is low; still we keep it in the target directory.
     safe_name = os.path.basename(filename)
     img_dir = Config.BOOK_IMAGE_DIR
+    print(f"DEBUG: filename={filename}, safe_name={safe_name}, img_dir={img_dir}, full_path={os.path.join(img_dir, safe_name)}")
+    print(f"DEBUG: is_file={os.path.isfile(os.path.join(img_dir, safe_name))}")
     if not os.path.isfile(os.path.join(img_dir, safe_name)):
         return _json_error("Image not found", code="not_found", status_code=404)
     return send_from_directory(img_dir, safe_name)
@@ -637,6 +637,20 @@ def admin_upload_ebook_pdf(book_id: int):
     filename = f"{uuid.uuid4().hex}.pdf"
     save_path = os.path.join(uploads, filename)
     file.save(save_path)
+
+    if not b.image_url:
+        try:
+            import fitz
+            doc = fitz.open(save_path)
+            if len(doc) > 0:
+                page = doc.load_page(0)
+                pix = page.get_pixmap()
+                img_filename = f"{uuid.uuid4().hex}.png"
+                img_path = os.path.join(_uploads_dir(Config.BOOK_IMAGE_DIR), img_filename)
+                pix.save(img_path)
+                b.image_url = f"/api/uploads/book-images/{img_filename}"
+        except Exception as e:
+            print("Failed to generate cover:", e)
 
     size = None
     try:

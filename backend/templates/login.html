@@ -105,10 +105,24 @@
             <input id="email" name="email" type="email" autocomplete="email" required placeholder="scholar@university.edu" />
           </div>
           <div style="margin-bottom: 32px;">
-            <label for="password">Password</label>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <label for="password" style="margin-bottom:0;">Password</label>
+              <a href="#" id="show-forgot-btn" class="muted" style="font-size:14px; text-decoration:none;">Forgot password?</a>
+            </div>
             <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
           </div>
           <button class="btn" type="submit" style="width: 100%; padding: 14px; font-size: 16px;">Sign in</button>
+        </form>
+
+        <form id="forgot-password-form" style="display:none;">
+          <div style="margin-bottom: 20px;">
+            <label for="forgot-email">Email address</label>
+            <input id="forgot-email" name="email" type="email" autocomplete="email" required placeholder="scholar@university.edu" />
+          </div>
+          <button class="btn" type="submit" style="width: 100%; padding: 14px; font-size: 16px;">Send Reset Link</button>
+          <div style="text-align:center; margin-top:16px;">
+            <a href="#" id="back-to-login-btn" class="muted" style="font-size:14px; text-decoration:none;">&larr; Back to login</a>
+          </div>
         </form>
         
         <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border); padding-top: 24px;">
@@ -190,6 +204,44 @@
         } catch (err) {
           errorBox.style.display = "block";
           errorBox.textContent = err.message || "Login failed";
+        }
+      });
+
+      const forgotForm = document.getElementById("forgot-password-form");
+      const showForgotBtn = document.getElementById("show-forgot-btn");
+      const backToLoginBtn = document.getElementById("back-to-login-btn");
+
+      showForgotBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        form.style.display = "none";
+        forgotForm.style.display = "block";
+        errorBox.style.display = "none";
+        infoBox.style.display = "none";
+      });
+
+      backToLoginBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        forgotForm.style.display = "none";
+        form.style.display = "block";
+        errorBox.style.display = "none";
+        infoBox.style.display = "none";
+      });
+
+      forgotForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorBox.style.display = "none";
+        infoBox.style.display = "none";
+        try {
+          const email = document.getElementById("forgot-email").value;
+          const payload = await apiPost("/api/auth/forgot-password", { email }, { auth: false });
+          infoBox.style.display = "block";
+          infoBox.className = "status good";
+          infoBox.textContent = payload.data.message;
+          forgotForm.style.display = "none";
+          form.style.display = "block";
+        } catch (err) {
+          errorBox.style.display = "block";
+          errorBox.textContent = err.message || "Failed to send reset link";
         }
       });
     </script>

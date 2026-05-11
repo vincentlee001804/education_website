@@ -4,7 +4,7 @@ import os
 class Config:
     # Flask
     SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "dev-only-change-me")
-    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(15 * 1024 * 1024)))  # 15 MB default
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(50 * 1024 * 1024)))  # 50 MB default
 
     # MySQL (SQLAlchemy URI)
     # Example:
@@ -23,7 +23,8 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_MINUTES", "30"))
 
     # Uploads
-    UPLOAD_ROOT = os.getenv("UPLOAD_ROOT", os.path.join(os.path.dirname(__file__), "..", "uploads"))
+    _raw_upload_root = os.getenv("UPLOAD_ROOT", os.path.join(os.path.dirname(__file__), "..", "uploads"))
+    UPLOAD_ROOT = os.path.abspath(_raw_upload_root)
     BOOK_IMAGE_DIR = os.path.join(UPLOAD_ROOT, "book_images")
     EBOOK_PDF_DIR = os.path.join(UPLOAD_ROOT, "ebook_pdfs")
 

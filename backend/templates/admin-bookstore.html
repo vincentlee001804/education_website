@@ -137,7 +137,10 @@
               </div>
               <div id="book-category-new-wrap" style="display:none;">
                 <label for="book-category-name">Or new category</label>
-                <input id="book-category-name" style="background:white;" />
+                <div style="display:flex; gap:8px;">
+                  <input id="book-category-name" style="background:white; flex-grow:1;" />
+                  <button type="button" class="btn outline xs" id="book-category-create-btn">Create New</button>
+                </div>
               </div>
             </div>
             <div class="helper-text muted" style="margin-top:8px;">Pick an existing category from the dropdown or type a new name — your choice applies immediately for Step 2.</div>
@@ -259,7 +262,8 @@
         </div>
         <div><label for="book-edit-description">Description</label><textarea id="book-edit-description" style="min-height:90px;"></textarea></div>
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 12px;">
-          <button class="btn danger" type="button" id="book-edit-delete-btn" style="margin-right:auto;">Delete</button>
+          <button class="btn outline" type="button" id="book-edit-upload-assets-btn" style="margin-right:auto;">Upload Cover/PDF</button>
+          <button class="btn danger" type="button" id="book-edit-delete-btn">Delete</button>
           <button class="btn outline" type="button" id="book-edit-cancel-btn">Cancel</button>
           <button class="btn" type="button" id="book-edit-apply-btn">Update Book</button>
         </div>
@@ -280,7 +284,7 @@
       let selectedCategoryName = "";
       let categoriesCache = [];
       let currentBookTitle = "";
-      const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+      const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
       function refreshUploadButtons() {
         const disabled = !currentBookId;
@@ -569,20 +573,25 @@
             if (!currentBookId) throw new Error("Create a book first.");
             const imageFile = $("book-image-file").files[0];
             const pdfFile = $("ebook-pdf-file").files[0];
-            if (!imageFile) throw new Error("Select a cover image first.");
-            if (!pdfFile) throw new Error("Select an ebook PDF first.");
-            if (!imageFile.type.startsWith("image/")) throw new Error("Cover must be an image file.");
-            if (imageFile.size > MAX_UPLOAD_BYTES) throw new Error("Cover image exceeds 10MB.");
-            if (pdfFile.type !== "application/pdf") throw new Error("Ebook must be a PDF file.");
-            if (pdfFile.size > MAX_UPLOAD_BYTES) throw new Error("PDF exceeds 10MB.");
+            if (!imageFile && !pdfFile) throw new Error("Select at least one file to upload (Cover image or Ebook PDF).");
+            
+            if (imageFile) {
+              if (!imageFile.type.startsWith("image/")) throw new Error("Cover must be an image file.");
+              if (imageFile.size > MAX_UPLOAD_BYTES) throw new Error("Cover image exceeds 50MB.");
+              const imageFd = new FormData();
+              imageFd.append("file", imageFile);
+              await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, imageFd, { auth: true });
+              $("image-upload-badge").style.display = "inline-flex";
+            }
 
-            const imageFd = new FormData();
-            imageFd.append("file", imageFile);
-            await apiUploadFormData(`/api/admin/books/${currentBookId}/image`, imageFd, { auth: true });
-
-            const pdfFd = new FormData();
-            pdfFd.append("file", pdfFile);
-            await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, pdfFd, { auth: true });
+            if (pdfFile) {
+              if (pdfFile.type !== "application/pdf") throw new Error("Ebook must be a PDF file.");
+              if (pdfFile.size > MAX_UPLOAD_BYTES) throw new Error("PDF exceeds 50MB.");
+              const pdfFd = new FormData();
+              pdfFd.append("file", pdfFile);
+              await apiUploadFormData(`/api/admin/books/${currentBookId}/ebook`, pdfFd, { auth: true });
+              $("ebook-upload-badge").style.display = "inline-flex";
+            }
 
             setStatus("upload-result", "Cover image and ebook PDF uploaded successfully.", "good");
             window.showToast("Assets uploaded successfully.", "good");
@@ -639,6 +648,26 @@
       $("book-edit-modal").addEventListener("click", (e) => {
         if (e.target.id === "book-edit-modal") closeBookEditModal();
       });
+
+      $("book-edit-upload-assets-btn").addEventListener("click", () => {
+         if (!selectedBookId) return;
+         currentBookId = selectedBookId;
+         currentBookTitle = $("book-edit-title").value;
+         const label = $("current-book-id");
+         if (label) label.textContent = `${currentBookTitle} (ID: ${currentBookId})`;
+         refreshUploadButtons();
+         closeBookEditModal();
+         
+         const workflowPanel = $("book-workflow-panel");
+         if (workflowPanel && workflowPanel.style.display === "none") {
+            const toggleBtn = $("toggle-book-workflow-btn");
+            if (toggleBtn) toggleBtn.click();
+         }
+         
+         const uploadTabBtn = document.querySelector(".admin-tab-btn[data-tab='uploads']");
+         if (uploadTabBtn) uploadTabBtn.click();
+      });
+
       $("book-edit-apply-btn").addEventListener("click", () => {
         if (!selectedBookId) return;
         updateBookFromModal(selectedBookId, $("book-edit-apply-btn"))
@@ -680,8 +709,8 @@
           });
       });
       $("book-category-existing-id").addEventListener("change", () => applyBookCategoryFromDropdown());
-      $("book-category-name").addEventListener("input", (e) => {
-        const typed = e.target.value.trim();
+      $("book-category-create-btn").addEventListener("click", () => {
+        const typed = $("book-category-name").value.trim();
         if (!typed) {
           selectedCategoryName = "";
           return;

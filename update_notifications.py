@@ -25,9 +25,7 @@ new_str = '''          <div id="notification-container" style="position: relativ
                 <div class="muted" style="line-height: 1.4;">Dr. Turing replied to your topic in Philosophy.</div>
                 <div class="muted" style="font-size: 12px; margin-top: 8px;">5 hours ago</div>
               </div>
-              <a href="#" class="dropdown-item" style="justify-content: center; color: var(--accent); font-weight: 600; border-top: 1px solid var(--border); border-radius: 0 0 12px 12px; padding: 12px;">
-                View All
-              </a>
+              </div>
             </div>
           </div>'''
 

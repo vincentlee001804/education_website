@@ -179,31 +179,100 @@
         usersEmpty.style.display = "block";
       }
 
-      async function loadUsersDemo() {
+      let usersCache = [];
+
+      async function loadUsers() {
         setStatus("Loading users...");
         usersSkeleton.style.display = "flex";
         usersEmpty.style.display = "none";
         retryBtn.style.display = "none";
         usersList.innerHTML = "";
 
-        await new Promise((resolve) => setTimeout(resolve, 650));
+        try {
+          const res = await apiGet("/api/auth/admin/users", { auth: true });
+          usersCache = res.data || [];
+          renderUsers();
+        } catch (e) {
+          usersSkeleton.style.display = "none";
+          renderEmptyState(e.message || "Failed to load users");
+          retryBtn.style.display = "inline-flex";
+        }
+      }
 
+      function renderUsers() {
         usersSkeleton.style.display = "none";
-        renderEmptyState("No users matched your current filter.");
-        retryBtn.style.display = "inline-flex";
+        usersList.innerHTML = "";
+        
+        const q = usersSearch.value.trim().toLowerCase();
+        const filtered = usersCache.filter(u => 
+          u.email.toLowerCase().includes(q) || 
+          (u.display_name || "").toLowerCase().includes(q)
+        );
+
+        if (!filtered.length) {
+          renderEmptyState("No users matched your current filter.");
+          return;
+        }
+        usersEmpty.style.display = "none";
+        
+        filtered.forEach(u => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.style.padding = "16px";
+          div.style.display = "flex";
+          div.style.justifyContent = "space-between";
+          div.style.alignItems = "center";
+          
+          const rolesStr = u.roles.join(", ");
+          
+          div.innerHTML = `
+            <div>
+              <div style="font-weight:600;">${u.email}</div>
+              <div class="muted" style="font-size:14px;">Name: ${u.display_name || "-"} | ID: ${u.id}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <select class="user-role-select" data-id="${u.id}">
+                <option value="student" ${rolesStr.includes('student') ? 'selected' : ''}>Student</option>
+                <option value="moderator" ${rolesStr.includes('moderator') ? 'selected' : ''}>Moderator</option>
+                <option value="admin" ${rolesStr.includes('admin') ? 'selected' : ''}>Admin</option>
+              </select>
+              <button class="btn outline xs save-role-btn" data-id="${u.id}">Save</button>
+            </div>
+          `;
+          usersList.appendChild(div);
+        });
+
+        document.querySelectorAll(".save-role-btn").forEach(btn => {
+          btn.addEventListener("click", async (e) => {
+            const id = btn.dataset.id;
+            const select = document.querySelector(`.user-role-select[data-id="${id}"]`);
+            const role = select.value;
+            
+            await window.withButtonLoading(btn, "...", async () => {
+              try {
+                await apiPatch(`/api/auth/admin/users/${id}/role`, { role }, { auth: true });
+                window.showToast("Role updated", "good");
+                await loadUsers();
+              } catch (err) {
+                window.showToast(err.message || "Failed to update role", "bad");
+              }
+            });
+          });
+        });
+        setStatus(`Loaded ${filtered.length} users.`, "good");
       }
 
       retryBtn.addEventListener("click", async (e) => {
         await window.withButtonLoading(e.currentTarget, "Retrying...", async () => {
-          await loadUsersDemo();
+          await loadUsers();
           window.showToast("User list refreshed.", "good");
         });
       });
       usersSearch.addEventListener("input", () => {
-        renderEmptyState("No users matched your current filter.");
+        renderUsers();
       });
 
-      document.addEventListener("DOMContentLoaded", loadUsersDemo);
+      document.addEventListener("DOMContentLoaded", loadUsers);
     </script>
   </body>
 </html>

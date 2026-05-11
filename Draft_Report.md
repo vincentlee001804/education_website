@@ -1,3 +1,6 @@
+# Introduction
+This report details the design, implementation, and evaluation of a responsive, full-stack education website built to support undergraduate students in their academic journey. The platform integrates a centralized learning hub with specialized modules, including course content delivery, a personalized student portal, an interactive discussion forum, and a functional e-commerce bookstore. The project aims to deliver a secure, accessible, and highly usable environment that successfully blends academic resource management with digital purchasing capabilities.
+
 1.0 Design Choices and Rationale
 1.1 Architecture Choice
 The project uses a Flask-based full-stack architecture with server-rendered pages and JSON APIs under `/api`.

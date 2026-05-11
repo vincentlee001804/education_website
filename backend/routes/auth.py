@@ -152,3 +152,55 @@ def me():
         }
     )
 
+
+@auth_bp.post("/forgot-password")
+def forgot_password():
+    payload = request.get_json(silent=True) or {}
+    email = (payload.get("email") or "").strip().lower()
+    if not email:
+        return _json_error("A valid email is required", code="invalid_email")
+    return jsonify({"data": {"message": f"Password reset link sent to {email}"}, "error": None}), 200
+
+
+@auth_bp.get("/admin/users")
+@require_roles("admin")
+def admin_users():
+    users = User.query.order_by(User.id.desc()).all()
+    out = []
+    for u in users:
+        roles = _get_user_roles_from_db(u.id)
+        if not roles: roles = ["student"]
+        out.append({
+            "id": u.id,
+            "email": u.email,
+            "display_name": u.display_name,
+            "roles": roles,
+            "is_active": u.is_active
+        })
+    return jsonify({"data": out, "error": None}), 200
+
+
+@auth_bp.patch("/admin/users/<int:user_id>/role")
+@require_roles("admin")
+def admin_update_user_role(user_id: int):
+    payload = request.get_json(silent=True) or {}
+    new_role = (payload.get("role") or "").strip().lower()
+    
+    if new_role not in ["student", "moderator", "admin"]:
+        return _json_error("Invalid role", code="invalid_role")
+        
+    user = User.query.get(user_id)
+    if not user:
+        return _json_error("User not found", code="not_found", status_code=404)
+        
+    role_obj = Role.query.filter_by(name=new_role).first()
+    if not role_obj:
+        role_obj = Role(name=new_role)
+        db.session.add(role_obj)
+        db.session.flush()
+        
+    UserRole.query.filter_by(user_id=user.id).delete()
+    db.session.add(UserRole(user_id=user.id, role_id=role_obj.id))
+    db.session.commit()
+    
+    return jsonify({"data": {"message": f"Role updated to {new_role}"}, "error": None}), 200

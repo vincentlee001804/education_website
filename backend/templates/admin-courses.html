@@ -170,6 +170,7 @@
                 <div id="course-title-error" class="field-error"></div>
               </div>
               <div id="course-description-wrap" style="display:none;"><label for="course-description">Description</label><textarea id="course-description" placeholder="Short course overview (optional)" style="background:white; min-height:80px;"></textarea></div>
+              <button id="course-submit-btn" class="btn" type="submit" style="margin-top:8px;">Use Course</button>
             </form>
             <div class="muted" id="course-result" style="margin-top:12px; font-size:14px;"></div>
           </details>
@@ -287,23 +288,43 @@
         <div class="row" style="margin-bottom: 12px;">
           <div>
             <label for="course-edit-subject">Subject</label>
-            <select id="course-edit-subject">
-              <option value="">Choose ...</option>
-            </select>
+            <div style="display:flex; gap:8px;">
+              <select id="course-edit-subject" style="flex-grow:1;">
+                <option value="">Choose ...</option>
+              </select>
+              <button type="button" class="btn outline xs danger course-inline-delete" data-type="subject" title="Delete Subject" style="padding:0 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
           </div>
           <div>
             <label for="course-edit-course">Course</label>
-            <input id="course-edit-course" />
+            <div style="display:flex; gap:8px;">
+              <input id="course-edit-course" style="flex-grow:1;" />
+              <button type="button" class="btn outline xs danger course-inline-delete" data-type="course" title="Delete Course" style="padding:0 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
           </div>
         </div>
         <div class="row" style="margin-bottom: 12px;">
           <div>
             <label for="course-edit-module">Module</label>
-            <input id="course-edit-module" />
+            <div style="display:flex; gap:8px;">
+              <input id="course-edit-module" style="flex-grow:1;" />
+              <button type="button" class="btn outline xs danger course-inline-delete" data-type="module" title="Delete Module" style="padding:0 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
           </div>
           <div>
             <label for="course-edit-resource">Resource</label>
-            <input id="course-edit-resource" />
+            <div style="display:flex; gap:8px;">
+              <input id="course-edit-resource" style="flex-grow:1;" />
+              <button type="button" class="btn outline xs danger course-inline-delete" data-type="resource" title="Delete Resource" style="padding:0 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              </button>
+            </div>
           </div>
         </div>
         <div class="row" style="margin-bottom: 12px;">
@@ -316,8 +337,21 @@
           </div>
           <div></div>
         </div>
+        <div id="course-edit-resource-fields" style="display:none; margin-bottom: 12px; padding:12px; background:white; border-radius:8px; border:1px solid var(--border);">
+          <div id="course-edit-note-fields">
+            <label for="course-edit-content-text">Note Text</label>
+            <textarea id="course-edit-content-text" style="min-height:80px; width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;"></textarea>
+          </div>
+          <div id="course-edit-video-fields" style="display:none;">
+            <label for="course-edit-content-url">Video URL</label>
+            <input id="course-edit-content-url" placeholder="https://youtube.com/watch?v=..." style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;" />
+          </div>
+          <div style="margin-top:12px; text-align:right;">
+             <button class="btn outline xs" type="button" id="course-edit-update-resource-btn">Update Resource Content</button>
+             <div class="muted" id="course-edit-update-msg" style="font-size:12px; margin-top:4px;"></div>
+          </div>
+        </div>
         <div style="display:flex; justify-content:flex-end; gap:10px;">
-          <button class="btn danger" type="button" id="course-edit-delete-btn" style="margin-right:auto;">Delete</button>
           <button class="btn outline" type="button" id="course-edit-cancel-btn">Cancel</button>
           <button class="btn" type="button" id="course-edit-apply-btn">Apply To Form</button>
         </div>
@@ -783,6 +817,20 @@
         const parsedResource = parseResourceCell(row.resource === "-" ? "" : row.resource);
         $("course-edit-resource").value = parsedResource.title || "";
         $("course-edit-resource-type").value = (row.resource_type || parsedResource.type || "note").toLowerCase();
+        
+        $("course-edit-resource-fields").style.display = "block";
+        $("course-edit-content-text").value = row.resource_content_text || "";
+        $("course-edit-content-url").value = row.resource_content_url || "";
+        $("course-edit-update-msg").textContent = "";
+
+        if (row.kind === "resource") {
+           $("course-edit-update-resource-btn").style.display = "inline-block";
+           $("course-edit-update-resource-btn").dataset.resourceId = row.resource_id;
+        } else {
+           $("course-edit-update-resource-btn").style.display = "none";
+        }
+
+        $("course-edit-resource-type").dispatchEvent(new Event("change"));
         $("course-edit-modal").classList.add("open");
       }
 
@@ -859,28 +907,13 @@
           $("resource-type").value = $("course-edit-resource-type").value || row.resource_type || parsedResource.type?.toLowerCase() || "note";
           syncResourceFields();
           $("resource-title").value = $("course-edit-resource").value || row.resource_title || parsedResource.title || "";
-          $("resource-content-text").value = row.resource_content_text || "";
-          $("resource-content-url").value = row.resource_content_url || "";
+          $("resource-content-text").value = $("course-edit-content-text").value || row.resource_content_text || "";
+          $("resource-content-url").value = $("course-edit-content-url").value || row.resource_content_url || "";
           window.showToast("Resource loaded into form.", "good");
         }
       }
 
-      async function deleteCourseRow(rowId, triggerBtn) {
-        const row = courseRowsCache.find((r) => r.id === rowId);
-        if (!row) throw new Error("Row not found.");
 
-        let endpoint = "";
-        if (row.kind === "subject" && row.subject_id) endpoint = `/api/admin/subjects/${row.subject_id}`;
-        if (row.kind === "course" && row.course_id) endpoint = `/api/admin/courses/${row.course_id}`;
-        if (row.kind === "module" && row.module_id) endpoint = `/api/admin/modules/${row.module_id}`;
-        if (row.kind === "resource" && row.resource_id) endpoint = `/api/admin/resources/${row.resource_id}`;
-        if (!endpoint) throw new Error("Delete is not available for this row.");
-
-        await window.withButtonLoading(triggerBtn, "Deleting...", async () => {
-          await requireAuthOrThrow();
-          await apiDelete(endpoint, { auth: true });
-        });
-      }
 
       async function refreshTopTableFromCurrentSelection() {
         await buildCourseDataTable();
@@ -1143,22 +1176,71 @@
         handleCourseRowEdit(selectedCourseRowId);
         closeCourseEditModal();
       });
-      $("course-edit-delete-btn").addEventListener("click", () => {
-        if (!selectedCourseRowId) return;
-        const row = courseRowsCache.find((r) => r.id === selectedCourseRowId);
-        if (!row) return;
-        const confirmed = window.confirm(`Delete this ${row.kind}? This action cannot be undone.`);
-        if (!confirmed) return;
 
-        deleteCourseRow(selectedCourseRowId, $("course-edit-delete-btn"))
-          .then(async () => {
-            window.showToast(`${row.kind[0].toUpperCase()}${row.kind.slice(1)} deleted.`, "good");
-            closeCourseEditModal();
-            await refreshAfterCreate();
-          })
-          .catch((e) => {
-            window.showToast(e.message || "Failed to delete item.", "bad");
+      $("course-edit-resource-type").addEventListener("change", (e) => {
+        const t = e.target.value;
+        $("course-edit-note-fields").style.display = t === "note" ? "block" : "none";
+        $("course-edit-video-fields").style.display = t === "video" ? "block" : "none";
+      });
+
+      $("course-edit-update-resource-btn").addEventListener("click", async (e) => {
+        const resId = e.target.dataset.resourceId;
+        if (!resId) return;
+        const type = $("course-edit-resource-type").value;
+        const title = $("course-edit-resource").value;
+        const text = $("course-edit-content-text").value;
+        const url = $("course-edit-content-url").value;
+        
+        await window.withButtonLoading(e.target, "Updating...", async () => {
+          try {
+            await apiPatch(`/api/admin/resources/${resId}`, {
+               title: title,
+               resource_type: type,
+               content_text: text,
+               content_url: url
+            }, { auth: true });
+            setStatus("course-edit-update-msg", "Resource content updated!", "good");
+            await buildCourseDataTable();
+          } catch(err) {
+            setStatus("course-edit-update-msg", err.message, "bad");
+          }
+        });
+      });
+
+      document.querySelectorAll(".course-inline-delete").forEach(btn => {
+        btn.addEventListener("click", () => {
+          if (!selectedCourseRowId) return;
+          const row = courseRowsCache.find((r) => r.id === selectedCourseRowId);
+          if (!row) return;
+          const type = btn.dataset.type;
+          
+          let endpoint = "";
+          let itemStr = "";
+          
+          if (type === "subject" && row.subject_id) { endpoint = `/api/admin/subjects/${row.subject_id}`; itemStr = "subject"; }
+          if (type === "course" && row.course_id) { endpoint = `/api/admin/courses/${row.course_id}`; itemStr = "course"; }
+          if (type === "module" && row.module_id) { endpoint = `/api/admin/modules/${row.module_id}`; itemStr = "module"; }
+          if (type === "resource" && row.resource_id) { endpoint = `/api/admin/resources/${row.resource_id}`; itemStr = "resource"; }
+          
+          if (!endpoint) {
+            window.showToast(`No ${type} available to delete in this row.`, "bad");
+            return;
+          }
+
+          const confirmed = window.confirm(`Delete this ${itemStr}? This action cannot be undone.`);
+          if (!confirmed) return;
+
+          window.withButtonLoading(btn, "...", async () => {
+            await requireAuthOrThrow();
+            await apiDelete(endpoint, { auth: true });
+          }).then(async () => {
+             window.showToast(`${itemStr} deleted.`, "good");
+             closeCourseEditModal();
+             await refreshAfterCreate();
+          }).catch((e) => {
+             window.showToast(e.message || `Failed to delete ${itemStr}.`, "bad");
           });
+        });
       });
       $("subject-name").addEventListener("input", (e) => {
         const typed = e.target.value.trim();

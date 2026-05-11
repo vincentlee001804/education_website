@@ -386,6 +386,35 @@ def admin_delete_resource(resource_id: int):
     return jsonify({"data": {"deleted": True, "resource_id": resource_id}, "error": None})
 
 
+@courses_bp.patch("/admin/resources/<int:resource_id>")
+@_require_roles(["moderator", "admin"])
+def admin_update_resource(resource_id: int):
+    r = Resource.query.get(resource_id)
+    if not r:
+        return _json_error("Resource not found", code="not_found", status_code=404)
+
+    payload = request.get_json(silent=True) or {}
+
+    title = payload.get("title")
+    if title:
+        r.title = title
+
+    resource_type = payload.get("resource_type")
+    if resource_type:
+        r.resource_type = resource_type
+
+    content_text = payload.get("content_text")
+    if content_text is not None:
+        r.content_text = content_text
+
+    content_url = payload.get("content_url")
+    if content_url is not None:
+        r.content_url = content_url
+
+    db.session.commit()
+    return jsonify({"data": {"updated": True, "resource_id": r.id}, "error": None})
+
+
 @courses_bp.delete("/admin/modules/<int:module_id>")
 @_require_roles(["moderator", "admin"])
 def admin_delete_module(module_id: int):
