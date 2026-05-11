@@ -476,3 +476,61 @@ def admin_delete_subject(subject_id: int):
     db.session.commit()
     return jsonify({"data": {"deleted": True, "subject_id": subject_id}, "error": None})
 
+
+@courses_bp.patch("/admin/subjects/<int:subject_id>")
+@_require_roles(["moderator", "admin"])
+def admin_update_subject(subject_id: int):
+    sub = Subject.query.get(subject_id)
+    if not sub:
+        return _json_error("Subject not found", code="not_found", status_code=404)
+
+    payload = request.get_json(silent=True) or {}
+    name = payload.get("name")
+    if name and len(name.strip()) >= 2:
+        sub.name = name.strip()
+
+    db.session.commit()
+    return jsonify({"data": {"updated": True, "subject_id": sub.id}, "error": None})
+
+
+@courses_bp.patch("/admin/courses/<int:course_id>")
+@_require_roles(["moderator", "admin"])
+def admin_update_course(course_id: int):
+    c = Course.query.get(course_id)
+    if not c:
+        return _json_error("Course not found", code="not_found", status_code=404)
+
+    payload = request.get_json(silent=True) or {}
+    title = payload.get("title")
+    description = payload.get("description")
+    
+    if title and len(title.strip()) >= 2:
+        c.title = title.strip()
+    if "description" in payload:
+        c.description = description.strip() if description else None
+
+    db.session.commit()
+    return jsonify({"data": {"updated": True, "course_id": c.id}, "error": None})
+
+
+@courses_bp.patch("/admin/modules/<int:module_id>")
+@_require_roles(["moderator", "admin"])
+def admin_update_module(module_id: int):
+    m = Module.query.get(module_id)
+    if not m:
+        return _json_error("Module not found", code="not_found", status_code=404)
+
+    payload = request.get_json(silent=True) or {}
+    title = payload.get("title")
+    order_index = payload.get("order_index")
+
+    if title and len(title.strip()) >= 2:
+        m.title = title.strip()
+    if order_index is not None:
+        try:
+            m.order_index = int(order_index)
+        except ValueError:
+            pass
+
+    db.session.commit()
+    return jsonify({"data": {"updated": True, "module_id": m.id}, "error": None})

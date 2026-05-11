@@ -92,27 +92,14 @@
 
       <div class="card" style="padding:32px; border-radius:24px;">
         <div class="card tight" style="margin-bottom:18px; background: var(--bg0);">
-          <h3 style="margin: 0 0 12px; color: var(--accent);">Current Course Data</h3>
-          <div class="admin-data-table-wrap">
-            <table class="admin-data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Subject</th>
-                  <th>Course</th>
-                  <th>Module</th>
-                  <th>Resource</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="course-data-table-body">
-                <tr><td colspan="6" class="muted">Loading existing data...</td></tr>
-              </tbody>
-            </table>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin: 0; color: var(--accent);">Current Course Data</h3>
+            <button class="btn admin-toggle-btn" type="button" id="toggle-create-workflow-btn" style="padding: 8px 16px;">Create New Course Structure</button>
+          </div>
+          <div id="course-hierarchy-container" style="display:flex; flex-direction:column; gap:16px;">
+            <div class="muted">Loading course structure...</div>
           </div>
         </div>
-
-        <button class="btn outline xs admin-toggle-btn" type="button" id="toggle-create-workflow-btn" style="margin-bottom:18px;">Create New Course Structure</button>
 
         <div id="create-workflow-panel" class="create-panel tabbed-workflow" style="display:none; flex-direction:column; gap:18px;">
           <div class="admin-tabs" id="course-tabs">
@@ -280,80 +267,56 @@
       </div>
     </footer>
 
-    <div id="course-edit-modal" class="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="course-edit-modal-title">
+    <div id="context-edit-modal" class="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="context-edit-modal-title">
       <div class="admin-modal-card">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px;">
-          <h3 id="course-edit-modal-title" style="margin:0; color:var(--accent);">Edit Course Metadata</h3>
+          <h3 id="context-edit-modal-title" style="margin:0; color:var(--accent);">Edit Item</h3>
         </div>
-        <div class="row" style="margin-bottom: 12px;">
-          <div>
-            <label for="course-edit-subject">Subject</label>
-            <div style="display:flex; gap:8px;">
-              <select id="course-edit-subject" style="flex-grow:1;">
-                <option value="">Choose ...</option>
-              </select>
-              <button type="button" class="btn outline xs danger course-inline-delete" data-type="subject" title="Delete Subject" style="padding:0 8px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
-            </div>
-          </div>
-          <div>
-            <label for="course-edit-course">Course</label>
-            <div style="display:flex; gap:8px;">
-              <input id="course-edit-course" style="flex-grow:1;" />
-              <button type="button" class="btn outline xs danger course-inline-delete" data-type="course" title="Delete Course" style="padding:0 8px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
-            </div>
-          </div>
+        <input type="hidden" id="context-edit-type" value="" />
+        <input type="hidden" id="context-edit-id" value="" />
+
+        <div id="context-edit-subject-fields" style="display:none; margin-bottom: 12px;">
+          <label for="context-edit-subject-name">Subject Name</label>
+          <input id="context-edit-subject-name" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;" />
         </div>
-        <div class="row" style="margin-bottom: 12px;">
-          <div>
-            <label for="course-edit-module">Module</label>
-            <div style="display:flex; gap:8px;">
-              <input id="course-edit-module" style="flex-grow:1;" />
-              <button type="button" class="btn outline xs danger course-inline-delete" data-type="module" title="Delete Module" style="padding:0 8px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
-            </div>
+
+        <div id="context-edit-course-fields" style="display:none; margin-bottom: 12px;">
+          <label for="context-edit-course-title">Course Title</label>
+          <input id="context-edit-course-title" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 8px;" />
+          <label for="context-edit-course-description">Description</label>
+          <textarea id="context-edit-course-description" style="min-height:80px; width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;"></textarea>
+        </div>
+
+        <div id="context-edit-module-fields" style="display:none; margin-bottom: 12px;">
+          <label for="context-edit-module-title">Module Title</label>
+          <input id="context-edit-module-title" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;" />
+        </div>
+
+        <div id="context-edit-resource-fields" style="display:none; margin-bottom: 12px;">
+          <label for="context-edit-resource-title">Resource Title</label>
+          <input id="context-edit-resource-title" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 8px;" />
+          
+          <label for="context-edit-resource-type">Resource Type</label>
+          <select id="context-edit-resource-type" style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 8px;">
+            <option value="note">Note</option>
+            <option value="video">Video</option>
+          </select>
+
+          <div id="context-edit-note-fields">
+            <label for="context-edit-content-text">Note Text</label>
+            <textarea id="context-edit-content-text" style="min-height:80px; width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;"></textarea>
           </div>
-          <div>
-            <label for="course-edit-resource">Resource</label>
-            <div style="display:flex; gap:8px;">
-              <input id="course-edit-resource" style="flex-grow:1;" />
-              <button type="button" class="btn outline xs danger course-inline-delete" data-type="resource" title="Delete Resource" style="padding:0 8px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
-            </div>
+          <div id="context-edit-video-fields" style="display:none;">
+            <label for="context-edit-content-url">Video URL</label>
+            <input id="context-edit-content-url" placeholder="https://youtube.com/watch?v=..." style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;" />
           </div>
         </div>
-        <div class="row" style="margin-bottom: 12px;">
-          <div>
-            <label for="course-edit-resource-type">Resource type</label>
-            <select id="course-edit-resource-type">
-              <option value="note">Note</option>
-              <option value="video">Video</option>
-            </select>
-          </div>
-          <div></div>
-        </div>
-        <div id="course-edit-resource-fields" style="display:none; margin-bottom: 12px; padding:12px; background:white; border-radius:8px; border:1px solid var(--border);">
-          <div id="course-edit-note-fields">
-            <label for="course-edit-content-text">Note Text</label>
-            <textarea id="course-edit-content-text" style="min-height:80px; width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;"></textarea>
-          </div>
-          <div id="course-edit-video-fields" style="display:none;">
-            <label for="course-edit-content-url">Video URL</label>
-            <input id="course-edit-content-url" placeholder="https://youtube.com/watch?v=..." style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px;" />
-          </div>
-          <div style="margin-top:12px; text-align:right;">
-             <button class="btn outline xs" type="button" id="course-edit-update-resource-btn">Update Resource Content</button>
-             <div class="muted" id="course-edit-update-msg" style="font-size:12px; margin-top:4px;"></div>
-          </div>
-        </div>
+
+        <div class="muted" id="context-edit-update-msg" style="font-size:14px; margin-bottom:12px;"></div>
+        
         <div style="display:flex; justify-content:flex-end; gap:10px;">
-          <button class="btn outline" type="button" id="course-edit-cancel-btn">Cancel</button>
-          <button class="btn" type="button" id="course-edit-apply-btn">Apply To Form</button>
+          <button class="btn outline" type="button" id="context-edit-cancel-btn">Cancel</button>
+          <button class="btn" type="button" id="context-edit-save-btn">Save Changes</button>
         </div>
       </div>
     </div>
@@ -681,52 +644,102 @@
       }
 
       async function buildCourseDataTable() {
-        const tbody = $("course-data-table-body");
-        if (!tbody) return;
+        const container = $("course-hierarchy-container");
+        if (!container) return;
         const subjectNameById = new Map(subjectsCache.map((s) => [String(s.id), s.name]));
         const usedSubjectNames = new Set();
         const rows = [];
+        let html = "";
 
         for (const course of coursesCache) {
           const subjectLabel = getSubjectLabelForCourse(course, subjectNameById);
           if (subjectLabel !== "-") usedSubjectNames.add(subjectLabel);
+          
+          rows.push({
+            kind: "course",
+            id: `C${course.id}`,
+            subject: subjectLabel,
+            course: course.title,
+            module: "-",
+            resource: "-",
+            course_id: course.id,
+            course_title: course.title,
+            course_description: course.description || ""
+          });
+
+          html += `
+            <div class="card" style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <div>
+                  <div class="muted" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Course • ${escapeHtml(subjectLabel)}</div>
+                  <h4 style="margin: 0; color: var(--accent); font-size: 18px;">${escapeHtml(course.title)}</h4>
+                </div>
+                <div style="display:flex; gap: 8px;">
+                  <button class="btn outline xs edit-course-row-btn" type="button" data-row-id="C${course.id}" data-row-type="course" style="padding: 6px 10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    Edit
+                  </button>
+                  <button class="btn outline xs danger delete-entity-btn" type="button" data-row-id="C${course.id}" data-row-type="course" style="padding: 6px 10px;" title="Delete Course">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap: 8px;">
+          `;
+
           const modulesRes = await apiGet(`/api/courses/${course.id}/modules`, { auth: false });
           const modules = modulesRes.data || [];
 
           if (!modules.length) {
-            rows.push({
-              kind: "course",
-              id: `C${course.id}`,
-              subject: subjectLabel,
-              course: course.title,
-              module: "-",
-              resource: "-",
-              course_id: course.id,
-              course_title: course.title,
-              course_description: course.description || ""
-            });
-            continue;
+            html += `<div class="muted" style="font-size: 14px; padding: 8px;">No modules in this course yet.</div>`;
           }
 
           for (const module of modules) {
+            rows.push({
+              kind: "module",
+              id: `M${module.id}`,
+              subject: subjectLabel,
+              course: course.title,
+              module: module.title,
+              resource: "-",
+              course_id: course.id,
+              module_id: module.id,
+              module_title: module.title,
+              module_order_index: module.order_index ?? 0
+            });
+
+            html += `
+              <details class="admin-accordion" style="background: var(--bg0); border-radius: 8px; border: 1px solid var(--border);">
+                <summary style="padding: 12px 16px; display:flex; justify-content:space-between; align-items:center;">
+                  <div style="display:flex; align-items:center; gap: 8px; font-weight: 600;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    ${escapeHtml(module.title)}
+                  </div>
+                  <div style="display:flex; align-items:center; gap: 4px;">
+                    <button class="btn outline xs edit-course-row-btn" type="button" data-row-id="M${module.id}" data-row-type="module" style="padding: 4px 8px; border: none;" title="Edit Module" onclick="event.preventDefault();">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="btn outline xs danger delete-entity-btn" type="button" data-row-id="M${module.id}" data-row-type="module" style="padding: 4px 8px; border: none;" title="Delete Module" onclick="event.preventDefault();">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </div>
+                </summary>
+                <div style="padding: 12px 16px; display:flex; flex-direction:column; gap: 8px;">
+            `;
+
             const resourcesRes = await apiGet(`/api/modules/${module.id}/resources`, { auth: false });
             const resources = resourcesRes.data || [];
             if (!resources.length) {
-              rows.push({
-                kind: "module",
-                id: `M${module.id}`,
-                subject: subjectLabel,
-                course: course.title,
-                module: module.title,
-                resource: "-",
-                course_id: course.id,
-                module_id: module.id,
-                module_title: module.title,
-                module_order_index: module.order_index ?? 0
-              });
-              continue;
+               html += `<div class="muted" style="font-size: 14px;">No resources yet.</div>`;
             }
+
             for (const resource of resources) {
+              const resType = resource.resource_type || "note";
+              const isVideo = resType === "video";
+              const typeIcon = isVideo 
+                ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="muted"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`
+                : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="muted"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+              
               rows.push({
                 kind: "resource",
                 id: `R${resource.id}`,
@@ -736,15 +749,37 @@
                 resource: `${resource.title} (${String(resource.resource_type || "").toUpperCase()})`,
                 module_id: module.id,
                 resource_id: resource.id,
-                resource_type: resource.resource_type || "note",
+                resource_type: resType,
                 resource_title: resource.title || "",
                 resource_content_text: resource.content_text || "",
                 resource_content_url: resource.content_url || ""
               });
+
+              html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px; background: white; border-radius: 6px; border: 1px solid var(--border);">
+                  <div style="display:flex; align-items:center; gap: 12px; font-size: 14px;">
+                    ${typeIcon}
+                    <span>${escapeHtml(resource.title)}</span>
+                  </div>
+                  <div style="display:flex; gap: 4px;">
+                    <button class="btn outline xs edit-course-row-btn" type="button" data-row-id="R${resource.id}" data-row-type="resource" style="padding: 4px 8px; border: none;" title="Edit Resource">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="btn outline xs danger delete-entity-btn" type="button" data-row-id="R${resource.id}" data-row-type="resource" style="padding: 4px 8px; border: none;" title="Delete Resource">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              `;
             }
+            html += `<div style="margin-top: 8px;"><button class="btn outline xs add-inline-btn" data-parent-id="${module.id}" data-course-id="${course.id}" data-add-type="resource">+ Add Resource</button></div>`;
+            html += `</div></details>`;
           }
+          html += `<div style="margin-top: 12px;"><button class="btn outline xs add-inline-btn" data-parent-id="${course.id}" data-add-type="module">+ Add Module</button></div>`;
+          html += `</div></div>`;
         }
 
+        let emptySubjectsHtml = "";
         for (const subject of subjectsCache) {
           if (usedSubjectNames.has(subject.name)) continue;
           rows.push({
@@ -757,43 +792,31 @@
             subject_id: subject.id,
             subject_name: subject.name
           });
+          emptySubjectsHtml += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; background: var(--bg0); border-radius: 8px; border: 1px dashed var(--border);">
+              <div style="font-weight: 600; color: var(--muted);">${escapeHtml(subject.name)}</div>
+              <div style="display:flex; gap: 8px;">
+                <button class="btn outline xs edit-course-row-btn" type="button" data-row-id="S${subject.id}" data-row-type="subject">Edit Subject</button>
+                <button class="btn outline xs danger delete-entity-btn" type="button" data-row-id="S${subject.id}" data-row-type="subject" title="Delete Subject">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        if (emptySubjectsHtml) {
+           html += `<div style="margin-top: 24px;"><h4 style="margin: 0 0 12px; color: var(--accent);">Empty Subjects</h4><div style="display:flex; flex-direction:column; gap:8px;">${emptySubjectsHtml}</div></div>`;
         }
 
         courseRowsCache = rows;
 
-        if (!rows.length) {
-          tbody.innerHTML = `<tr><td colspan="6" class="muted">No existing data found.</td></tr>`;
+        if (!html) {
+          container.innerHTML = `<div class="muted">No existing data found.</div>`;
           return;
         }
 
-        tbody.innerHTML = rows.map((row) => {
-          const isExpanded = row.id === expandedCourseRowId;
-          const detail = `
-            <tr class="admin-detail-row" style="${isExpanded ? "" : "display:none;"}" data-detail-for="${escapeHtml(row.id)}">
-              <td colspan="6">
-                <div class="admin-detail-grid">
-                  <div class="admin-detail-item"><strong>ID:</strong> ${escapeHtml(row.id)}</div>
-                  <div class="admin-detail-item"><strong>Type:</strong> ${escapeHtml(row.kind)}</div>
-                  <div class="admin-detail-item"><strong>Subject:</strong> ${escapeHtml(row.subject)}</div>
-                  <div class="admin-detail-item"><strong>Course:</strong> ${escapeHtml(row.course)}</div>
-                  <div class="admin-detail-item"><strong>Module:</strong> ${escapeHtml(row.module)}</div>
-                  <div class="admin-detail-item"><strong>Resource:</strong> ${escapeHtml(row.resource)}</div>
-                </div>
-              </td>
-            </tr>
-          `;
-          return `
-            <tr class="data-row" data-row-id="${escapeHtml(row.id)}">
-              <td><span class="pill">${escapeHtml(row.id)}</span></td>
-              <td><div class="admin-cell-truncate" title="${escapeHtml(row.subject)}">${escapeHtml(row.subject)}</div></td>
-              <td><div class="admin-cell-truncate" title="${escapeHtml(row.course)}">${escapeHtml(row.course)}</div></td>
-              <td><div class="admin-cell-truncate" title="${escapeHtml(row.module)}">${escapeHtml(row.module)}</div></td>
-              <td><div class="admin-cell-truncate" title="${escapeHtml(row.resource)}">${escapeHtml(row.resource)}</div></td>
-              <td><button class="btn outline xs edit-course-row-btn" type="button" data-row-id="${escapeHtml(row.id)}">Edit</button></td>
-            </tr>
-            ${detail}
-          `;
-        }).join("");
+        container.innerHTML = html;
       }
 
       function openWorkflowPanel() {
@@ -806,111 +829,48 @@
         }
       }
 
-      function openCourseEditModal(rowId) {
+      function openContextEditModal(rowId, rowType) {
         const row = courseRowsCache.find((r) => r.id === rowId);
         if (!row) return;
-        selectedCourseRowId = rowId;
-        const subjectMatch = subjectsCache.find((s) => s.name === row.subject);
-        $("course-edit-subject").value = subjectMatch ? String(subjectMatch.id) : "";
-        $("course-edit-course").value = row.course === "-" ? "" : row.course;
-        $("course-edit-module").value = row.module === "-" ? "" : row.module;
-        const parsedResource = parseResourceCell(row.resource === "-" ? "" : row.resource);
-        $("course-edit-resource").value = parsedResource.title || "";
-        $("course-edit-resource-type").value = (row.resource_type || parsedResource.type || "note").toLowerCase();
+
+        $("context-edit-type").value = rowType;
+        $("context-edit-id").value = rowId.substring(1); // remove prefix C, M, R, S
         
-        $("course-edit-resource-fields").style.display = "block";
-        $("course-edit-content-text").value = row.resource_content_text || "";
-        $("course-edit-content-url").value = row.resource_content_url || "";
-        $("course-edit-update-msg").textContent = "";
+        $("context-edit-subject-fields").style.display = "none";
+        $("context-edit-course-fields").style.display = "none";
+        $("context-edit-module-fields").style.display = "none";
+        $("context-edit-resource-fields").style.display = "none";
+        $("context-edit-update-msg").textContent = "";
 
-        if (row.kind === "resource") {
-           $("course-edit-update-resource-btn").style.display = "inline-block";
-           $("course-edit-update-resource-btn").dataset.resourceId = row.resource_id;
-        } else {
-           $("course-edit-update-resource-btn").style.display = "none";
+        if (rowType === "subject") {
+            $("context-edit-modal-title").textContent = "Edit Subject";
+            $("context-edit-subject-fields").style.display = "block";
+            $("context-edit-subject-name").value = row.subject || "";
+        } else if (rowType === "course") {
+            $("context-edit-modal-title").textContent = "Edit Course";
+            $("context-edit-course-fields").style.display = "block";
+            $("context-edit-course-title").value = row.course_title || "";
+            $("context-edit-course-description").value = row.course_description || "";
+        } else if (rowType === "module") {
+            $("context-edit-modal-title").textContent = "Edit Module";
+            $("context-edit-module-fields").style.display = "block";
+            $("context-edit-module-title").value = row.module_title || "";
+        } else if (rowType === "resource") {
+            $("context-edit-modal-title").textContent = "Edit Resource";
+            $("context-edit-resource-fields").style.display = "block";
+            
+            $("context-edit-resource-title").value = row.resource_title || "";
+            $("context-edit-resource-type").value = row.resource_type || "note";
+            $("context-edit-content-text").value = row.resource_content_text || "";
+            $("context-edit-content-url").value = row.resource_content_url || "";
+            $("context-edit-resource-type").dispatchEvent(new Event("change"));
         }
 
-        $("course-edit-resource-type").dispatchEvent(new Event("change"));
-        $("course-edit-modal").classList.add("open");
+        $("context-edit-modal").classList.add("open");
       }
 
-      function closeCourseEditModal() {
-        $("course-edit-modal").classList.remove("open");
-        selectedCourseRowId = null;
-      }
-
-      function handleCourseRowEdit(rowId) {
-        const row = courseRowsCache.find((r) => r.id === rowId);
-        if (!row) return;
-        openWorkflowPanel();
-
-        if (row.kind === "subject") {
-          setCourseTab("subjects");
-          const editedSubjectId = $("course-edit-subject").value;
-          const selectedSubject = subjectsCache.find((s) => String(s.id) === String(editedSubjectId));
-          if (editedSubjectId) {
-            $("subject-existing-id").value = editedSubjectId;
-            $("subject-name").value = "";
-          } else {
-            $("subject-existing-id").value = "";
-            $("subject-name").value = selectedSubject?.name || row.subject_name || "";
-          }
-          selectedSubjectId = editedSubjectId ? Number(editedSubjectId) : null;
-          selectedSubjectName = selectedSubject?.name || row.subject_name || "";
-          window.showToast("Subject loaded into form.", "good");
-          return;
-        }
-        if (row.kind === "course") {
-          setCourseTab("courses");
-          $("course-title").value = $("course-edit-course").value || row.course_title || "";
-          $("course-description").value = row.course_description || "";
-          const editedSubjectId = $("course-edit-subject").value;
-          const editedSubject = subjectsCache.find((s) => String(s.id) === String(editedSubjectId));
-          selectedSubjectId = editedSubjectId ? Number(editedSubjectId) : null;
-          selectedSubjectName = editedSubject?.name || "";
-          selectedCourseId = row.course_id ? Number(row.course_id) : selectedCourseId;
-          refreshCurrentCourseLabel();
-          $("course-existing-id").value = row.course_id ? String(row.course_id) : "";
-          const existingIntent = document.querySelector("input[name='course-intent'][value='existing']");
-          if (existingIntent) existingIntent.checked = true;
-          applyCourseIntentUI();
-          $("subject-existing-id").value = editedSubjectId || "";
-          $("subject-name").value = editedSubjectId ? "" : selectedSubjectName;
-          window.showToast("Course loaded into form.", "good");
-          return;
-        }
-        if (row.kind === "module") {
-          setCourseTab("modules");
-          if (row.course_id) {
-            $("module-course-select").value = String(row.course_id);
-            selectedCourseId = Number(row.course_id);
-            refreshCurrentCourseLabel();
-            loadModulesForCourse(Number(row.course_id), row.module_id);
-          }
-          $("module-title").value = $("course-edit-module").value || row.module_title || "";
-          $("module-existing-id").value = row.module_id ? String(row.module_id) : "";
-          selectedModuleId = row.module_id ? Number(row.module_id) : selectedModuleId;
-          const existingIntent = document.querySelector("input[name='module-intent'][value='existing']");
-          if (existingIntent) existingIntent.checked = true;
-          applyModuleIntentUI();
-          window.showToast("Module loaded into form.", "good");
-          return;
-        }
-        if (row.kind === "resource") {
-          setCourseTab("resources");
-          if (row.module_id) {
-            $("resource-module-select").value = String(row.module_id);
-            selectedModuleId = Number(row.module_id);
-            refreshCurrentModuleLabel();
-          }
-          const parsedResource = parseResourceCell(row.resource);
-          $("resource-type").value = $("course-edit-resource-type").value || row.resource_type || parsedResource.type?.toLowerCase() || "note";
-          syncResourceFields();
-          $("resource-title").value = $("course-edit-resource").value || row.resource_title || parsedResource.title || "";
-          $("resource-content-text").value = $("course-edit-content-text").value || row.resource_content_text || "";
-          $("resource-content-url").value = $("course-edit-content-url").value || row.resource_content_url || "";
-          window.showToast("Resource loaded into form.", "good");
-        }
+      function closeContextEditModal() {
+        $("context-edit-modal").classList.remove("open");
       }
 
 
@@ -956,18 +916,65 @@
         await loadResourcesForModule(moduleId);
         refreshCurrentModuleLabel();
       });
-      $("course-data-table-body").addEventListener("click", (e) => {
-        const btn = e.target.closest(".edit-course-row-btn");
-        if (btn) {
+      $("course-hierarchy-container").addEventListener("click", async (e) => {
+        const editBtn = e.target.closest(".edit-course-row-btn");
+        const deleteBtn = e.target.closest(".delete-entity-btn");
+        const addBtn = e.target.closest(".add-inline-btn");
+
+        if (editBtn) {
           e.stopPropagation();
-          openCourseEditModal(btn.dataset.rowId);
+          openContextEditModal(editBtn.dataset.rowId, editBtn.dataset.rowType);
           return;
         }
-        const row = e.target.closest("tr.data-row");
-        if (!row) return;
-        const rowId = row.dataset.rowId;
-        expandedCourseRowId = expandedCourseRowId === rowId ? null : rowId;
-        buildCourseDataTable();
+
+        if (deleteBtn) {
+          e.stopPropagation();
+          const type = deleteBtn.dataset.rowType;
+          const id = deleteBtn.dataset.rowId.substring(1);
+          const confirmed = window.confirm(`Delete this ${type}? This action cannot be undone.`);
+          if (!confirmed) return;
+
+          let endpoint = `/api/admin/${type}s/${id}`;
+          
+          await window.withButtonLoading(deleteBtn, "...", async () => {
+            try {
+              await requireAuthOrThrow();
+              await apiDelete(endpoint, { auth: true });
+              window.showToast(`${type} deleted.`, "good");
+              await refreshAfterCreate();
+            } catch (err) {
+              window.showToast(err.message || `Failed to delete ${type}.`, "bad");
+            }
+          });
+          return;
+        }
+
+        if (addBtn) {
+           e.stopPropagation();
+           const addType = addBtn.dataset.addType;
+           openWorkflowPanel();
+           if (addType === "module") {
+              setCourseTab("modules");
+              $("module-course-select").value = addBtn.dataset.parentId;
+              selectedCourseId = Number(addBtn.dataset.parentId);
+              refreshCurrentCourseLabel();
+              const intent = document.querySelector("input[name='module-intent'][value='new']");
+              if (intent) intent.checked = true;
+              applyModuleIntentUI();
+              $("module-title").focus();
+           } else if (addType === "resource") {
+              setCourseTab("resources");
+              $("module-course-select").value = addBtn.dataset.courseId;
+              selectedCourseId = Number(addBtn.dataset.courseId);
+              refreshCurrentCourseLabel();
+              await loadModulesForCourse(selectedCourseId);
+              $("resource-module-select").value = addBtn.dataset.parentId;
+              selectedModuleId = Number(addBtn.dataset.parentId);
+              refreshCurrentModuleLabel();
+              $("resource-title").focus();
+           }
+           return;
+        }
       });
 
       $("create-subject-btn").addEventListener("click", async (e) => {
@@ -1167,79 +1174,52 @@
           workflowBtn.textContent = isOpen ? "Create New Course Structure" : "Hide Create Workflow";
         });
       });
-      $("course-edit-cancel-btn").addEventListener("click", closeCourseEditModal);
-      $("course-edit-modal").addEventListener("click", (e) => {
-        if (e.target.id === "course-edit-modal") closeCourseEditModal();
+      $("context-edit-cancel-btn").addEventListener("click", closeContextEditModal);
+      $("context-edit-modal").addEventListener("click", (e) => {
+        if (e.target.id === "context-edit-modal") closeContextEditModal();
       });
-      $("course-edit-apply-btn").addEventListener("click", () => {
-        if (!selectedCourseRowId) return;
-        handleCourseRowEdit(selectedCourseRowId);
-        closeCourseEditModal();
-      });
-
-      $("course-edit-resource-type").addEventListener("change", (e) => {
+      $("context-edit-resource-type").addEventListener("change", (e) => {
         const t = e.target.value;
-        $("course-edit-note-fields").style.display = t === "note" ? "block" : "none";
-        $("course-edit-video-fields").style.display = t === "video" ? "block" : "none";
+        $("context-edit-note-fields").style.display = t === "note" ? "block" : "none";
+        $("context-edit-video-fields").style.display = t === "video" ? "block" : "none";
       });
+      $("context-edit-save-btn").addEventListener("click", async (e) => {
+        const type = $("context-edit-type").value;
+        const id = $("context-edit-id").value;
+        if (!id || !type) return;
 
-      $("course-edit-update-resource-btn").addEventListener("click", async (e) => {
-        const resId = e.target.dataset.resourceId;
-        if (!resId) return;
-        const type = $("course-edit-resource-type").value;
-        const title = $("course-edit-resource").value;
-        const text = $("course-edit-content-text").value;
-        const url = $("course-edit-content-url").value;
-        
-        await window.withButtonLoading(e.target, "Updating...", async () => {
+        let payload = {};
+        let endpoint = `/api/admin/${type}s/${id}`;
+
+        if (type === "subject") {
+            payload = { name: $("context-edit-subject-name").value.trim() };
+        } else if (type === "course") {
+            payload = { 
+                title: $("context-edit-course-title").value.trim(),
+                description: $("context-edit-course-description").value.trim() || null
+            };
+        } else if (type === "module") {
+            payload = { title: $("context-edit-module-title").value.trim() };
+        } else if (type === "resource") {
+            payload = {
+                title: $("context-edit-resource-title").value.trim(),
+                resource_type: $("context-edit-resource-type").value,
+                content_text: $("context-edit-content-text").value.trim() || null,
+                content_url: $("context-edit-content-url").value.trim() || null
+            };
+        }
+
+        await window.withButtonLoading(e.target, "Saving...", async () => {
           try {
-            await apiPatch(`/api/admin/resources/${resId}`, {
-               title: title,
-               resource_type: type,
-               content_text: text,
-               content_url: url
-            }, { auth: true });
-            setStatus("course-edit-update-msg", "Resource content updated!", "good");
-            await buildCourseDataTable();
-          } catch(err) {
-            setStatus("course-edit-update-msg", err.message, "bad");
-          }
-        });
-      });
-
-      document.querySelectorAll(".course-inline-delete").forEach(btn => {
-        btn.addEventListener("click", () => {
-          if (!selectedCourseRowId) return;
-          const row = courseRowsCache.find((r) => r.id === selectedCourseRowId);
-          if (!row) return;
-          const type = btn.dataset.type;
-          
-          let endpoint = "";
-          let itemStr = "";
-          
-          if (type === "subject" && row.subject_id) { endpoint = `/api/admin/subjects/${row.subject_id}`; itemStr = "subject"; }
-          if (type === "course" && row.course_id) { endpoint = `/api/admin/courses/${row.course_id}`; itemStr = "course"; }
-          if (type === "module" && row.module_id) { endpoint = `/api/admin/modules/${row.module_id}`; itemStr = "module"; }
-          if (type === "resource" && row.resource_id) { endpoint = `/api/admin/resources/${row.resource_id}`; itemStr = "resource"; }
-          
-          if (!endpoint) {
-            window.showToast(`No ${type} available to delete in this row.`, "bad");
-            return;
-          }
-
-          const confirmed = window.confirm(`Delete this ${itemStr}? This action cannot be undone.`);
-          if (!confirmed) return;
-
-          window.withButtonLoading(btn, "...", async () => {
             await requireAuthOrThrow();
-            await apiDelete(endpoint, { auth: true });
-          }).then(async () => {
-             window.showToast(`${itemStr} deleted.`, "good");
-             closeCourseEditModal();
-             await refreshAfterCreate();
-          }).catch((e) => {
-             window.showToast(e.message || `Failed to delete ${itemStr}.`, "bad");
-          });
+            await apiPatch(endpoint, payload, { auth: true });
+            setStatus("context-edit-update-msg", "Saved successfully!", "good");
+            closeContextEditModal();
+            await refreshAfterCreate();
+            window.showToast("Saved successfully.", "good");
+          } catch(err) {
+            setStatus("context-edit-update-msg", err.message, "bad");
+          }
         });
       });
       $("subject-name").addEventListener("input", (e) => {
